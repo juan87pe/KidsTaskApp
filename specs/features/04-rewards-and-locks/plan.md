@@ -18,10 +18,10 @@
 
 ## 2. Checklist de Tareas Atómicas
 
-- [ ] `TASK-REW-01`: Modelar la colección `rewards` con soporte para costos dinámicos, `targetChildId`, `isLocked`, `lockUntil` y `lockReason`.
-- [ ] `TASK-REW-02`: Desarrollar `RewardManager.jsx` con tarjetas informativas y controles parentales.
-- [ ] `TASK-REW-03`: Implementar `RewardEditorModal.jsx` con selectores de costo en puntos e iconos vectoriales.
-- [ ] `TASK-REW-04`: Desarrollar `RewardLockModal.jsx` con opciones de duración temporal y cálculo de `lockUntil`.
-- [ ] `TASK-REW-05`: Construir `KidRewardStore.jsx` con tarjetas interactivas, barra de progreso hacia metas y visualización de candados.
-- [ ] `TASK-REW-06`: Integrar flujo de canje en `ApprovalsHub.jsx` con emisión de transacción `reward_redemption` y deducción de saldo.
-- [ ] `TASK-REW-07`: Añadir pruebas de integración para el ciclo de vida de premios, bloqueos temporales y validación de saldo.
+- [x] `TASK-REW-01`: Modelar la colección `rewards` con soporte para costos dinámicos, `targetChildId`, `isLocked`, `lockUntil` y `lockReason`.
+- [x] `TASK-REW-02`: Desarrollar `RewardManager.jsx` con tarjetas informativas y controles parentales.
+- [x] `TASK-REW-03`: Implementar `RewardEditorModal.jsx` con selectores de costo en puntos e iconos vectoriales.
+- [x] `TASK-REW-04`: Desarrollar `RewardLockModal.jsx` con opciones de duración temporal y cálculo de `lockUntil`.
+- [x] `TASK-REW-05`: Construir `KidRewardStore.jsx` con tarjetas interactivas, barra de progreso hacia metas y visualización de candados.
+- [x] `TASK-REW-06`: Integrar flujo de canje en `ApprovalsHub.jsx` con emisión de transacción `reward_redemption` y deducción de saldo.
+- [x] `TASK-REW-07`: Añadir pruebas de integración para el ciclo de vida de premios, bloqueos temporales y validación de saldo.

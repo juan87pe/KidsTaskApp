@@ -222,7 +222,7 @@ export const INITIAL_DATA = {
   rewards: [
     {
       id: 'rew-1',
-      title: '30 mins de Videojuegos / Consola',
+      title: '30 mins de Consola',
       pointsCost: 100,
       iconSvg: '🎮',
       isLocked: false,
@@ -231,17 +231,20 @@ export const INITIAL_DATA = {
     {
       id: 'rew-2',
       title: 'Elegir el postre del domingo',
-      pointsCost: 60,
+      pointsCost: 80,
       iconSvg: '🍦',
       isLocked: false,
       availableFor: 'all'
     },
     {
       id: 'rew-3',
-      title: 'Salida al parque de trampolines',
+      title: 'Salida al parque',
       pointsCost: 200,
       iconSvg: '🎪',
-      isLocked: false,
+      isLocked: true,
+      lockUntil: '2026-08-30',
+      lockReason: 'Descanso temporal',
+      lockDuration: '2 días',
       availableFor: 'all'
     },
     {
@@ -252,6 +255,7 @@ export const INITIAL_DATA = {
       isLocked: true,
       lockUntil: '2026-08-28',
       lockReason: 'Descanso de pantallas por época de exámenes',
+      lockDuration: '2 días',
       availableFor: 'child-mateo'
     },
     {
@@ -271,18 +275,7 @@ export const INITIAL_DATA = {
       availableFor: 'all'
     }
   ],
-  pendingRedemptions: [
-    {
-      id: 'red-1',
-      childId: 'child-mateo',
-      rewardId: 'rew-1',
-      rewardTitle: '30 mins de Videojuegos / Consola',
-      pointsCost: 100,
-      iconSvg: '🎮',
-      requestedAt: '06:15 PM',
-      status: 'pending' // 'pending' | 'approved' | 'rejected'
-    }
-  ],
+  pendingRedemptions: [],
   calendarHistory: {
     '2026-08-25': {
       'child-mateo': {

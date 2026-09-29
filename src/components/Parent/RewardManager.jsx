@@ -115,7 +115,7 @@ export const RewardManager = ({ onOpenCreateReward, onOpenLockModal }) => {
               {/* Action Buttons */}
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                 <button
-                  onClick={() => onOpenLockModal(reward)}
+                  onClick={() => isLocked ? toggleRewardLock(reward.id) : onOpenLockModal(reward)}
                   className={`px-3 py-1.5 rounded-squircle-sm text-xs font-bold border flex items-center gap-1 transition ${
                     isLocked
                       ? 'bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200'
@@ -124,11 +124,11 @@ export const RewardManager = ({ onOpenCreateReward, onOpenLockModal }) => {
                 >
                   {isLocked ? (
                     <>
-                      <Unlock size={13} /> Desbloquear
+                      <Unlock size={13} /> [ 🔓 Desbloquear ]
                     </>
                   ) : (
                     <>
-                      <Lock size={13} /> Bloquear
+                      <Lock size={13} /> 🔒 Bloquear
                     </>
                   )}
                 </button>

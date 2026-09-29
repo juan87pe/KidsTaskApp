@@ -611,10 +611,23 @@ export const AppProvider = ({ children }) => {
         return c;
       });
 
+      const redemptionTx = {
+        id: `tx-red-${Date.now()}`,
+        childId: red.childId,
+        type: 'reward_redemption',
+        points: -Math.abs(red.pointsCost),
+        reason: `Canje de premio: ${red.rewardTitle}`,
+        date: new Date().toISOString().split('T')[0],
+        timestamp: new Date().toISOString(),
+        actor: 'Papá (Juan)',
+        isReversed: false
+      };
+
       return {
         ...prev,
         pendingRedemptions: updatedRedemptions,
-        children: updatedChildren
+        children: updatedChildren,
+        transactions: [...(prev.transactions || []), redemptionTx]
       };
     });
 
@@ -671,7 +684,8 @@ export const AppProvider = ({ children }) => {
             ...r,
             isLocked: !isCurrentlyLocked,
             lockUntil: !isCurrentlyLocked ? lockConfig.lockUntil || '2026-08-28' : null,
-            lockReason: !isCurrentlyLocked ? lockConfig.lockReason || 'Restricción parental temporal' : null
+            lockReason: !isCurrentlyLocked ? lockConfig.lockReason || 'Restricción parental temporal' : null,
+            lockDuration: !isCurrentlyLocked ? lockConfig.lockDuration || '2 días' : null
           };
         }
         return r;

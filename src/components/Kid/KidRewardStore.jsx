@@ -83,7 +83,7 @@ export const KidRewardStore = () => {
                   
                   {isLocked ? (
                     <span className="flex items-center gap-1 text-[11px] font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
-                      <Lock size={12} /> Bloqueado
+                      🔒 Bloqueado por tus papás
                     </span>
                   ) : (
                     <span className="flex items-center gap-1 font-extrabold text-sm text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full">
@@ -100,9 +100,9 @@ export const KidRewardStore = () => {
                   <div className="mt-2 p-2 rounded-squircle-sm bg-red-50 border border-red-200 text-[11px] text-red-700">
                     <p className="font-bold">🔒 Restringido por papás:</p>
                     <p className="text-[10px] mt-0.5">{reward.lockReason || 'Bloqueo temporal'}</p>
-                    {reward.lockUntil && (
-                      <p className="text-[10px] font-bold mt-1">Disponible el: {reward.lockUntil}</p>
-                    )}
+                    <p className="text-[10px] font-bold mt-1">
+                      Disponible en: {reward.lockDuration || '2 días'}
+                    </p>
                   </div>
                 )}
 

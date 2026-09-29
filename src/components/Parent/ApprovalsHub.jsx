@@ -178,7 +178,7 @@ export const ApprovalsHub = () => {
                       }`}
                     >
                       <Gift size={15} />
-                      <span>Autorizar Canje</span>
+                      <span>Autorizar Canje 🎁</span>
                     </button>
                     <button
                       onClick={() => denyRedemption(red.id)}

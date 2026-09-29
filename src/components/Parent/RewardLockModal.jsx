@@ -13,13 +13,16 @@ export const RewardLockModal = ({ isOpen, onClose, targetReward }) => {
 
   const handleConfirm = () => {
     let untilStr = '2026-08-28';
-    if (duration === '1 Día') untilStr = '2026-08-27';
-    if (duration === '1 Semana') untilStr = '2026-09-02';
-    if (duration === 'Indefinido') untilStr = null;
+    let lockDuration = '2 días';
+    if (duration === '1 Día') { untilStr = '2026-08-27'; lockDuration = '1 día'; }
+    if (duration === '2 Días') { untilStr = '2026-08-28'; lockDuration = '2 días'; }
+    if (duration === '1 Semana') { untilStr = '2026-09-02'; lockDuration = '1 semana'; }
+    if (duration === 'Indefinido') { untilStr = null; lockDuration = 'Indefinido'; }
 
     toggleRewardLock(targetReward.id, {
       lockUntil: untilStr,
-      lockReason: reason
+      lockReason: reason,
+      lockDuration
     });
     onClose();
   };
@@ -90,7 +93,7 @@ export const RewardLockModal = ({ isOpen, onClose, targetReward }) => {
             onClick={handleConfirm}
             className="text-xs font-bold"
           >
-            {targetReward.isLocked ? 'Actualizar Bloqueo' : 'Aplicar Bloqueo 🔒'}
+            Confirmar Bloqueo 🔒
           </ChunkyButton>
         </div>
 
