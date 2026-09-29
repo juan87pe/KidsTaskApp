@@ -40,13 +40,47 @@ Entonces el sistema guarda la regla de asignación recurrente para Mateo
 Y el visor interactivo de la tarea muestra: "Mateo: Semanal (Martes y Jueves)".
 ```
 
-### Escenario: Visor interactivo y desasignación sin borrado de plantilla [REQ-LIB-007] [REQ-LIB-008]
+### Escenario: Visor interactivo y apertura del diálogo contextual de desasignación [REQ-LIB-007] [REQ-LIB-008]
 ```gherkin
-Dado que la tarea "Pasear al perro" está asignada a "Sofía"
+Dado que la tarea "Pasear al perro" está asignada a "Sofía" con programación "Diaria continua"
 Cuando el padre pulsa la tarjeta de la tarea en la biblioteca
 Entonces se expande la ficha con la información de asignación de Sofía
 Cuando el padre pulsa "[ ❌ Desasignar / Pausar ]"
-Entonces Sofía deja de tener la tarea programada
+Entonces el sistema abre el modal "UnassignOrPauseModal" mostrando:
+  | Opción 1 | 🔘 Solo por el día de hoy |
+  | Opción 2 | ⚪ Pausar temporalmente por varios días |
+  | Opción 3 | ⚪ Desasignar de futuras asignaciones (Permanente) |
+```
+
+### Escenario: Desasignar solo por el día de hoy manteniendo regla activa [REQ-LIB-008]
+```gherkin
+Dado que "Mateo" tiene asignada la tarea "Hacer la cama" con programación diaria
+Y la tarea figura en la lista de hoy de Mateo
+Cuando el padre pulsa "[ ❌ Desasignar / Pausar ]" y selecciona "🔘 Solo por el día de hoy"
+Y confirma la acción
+Entonces la tarea "Hacer la cama" se retira de la lista de hoy de Mateo
+Pero Mateo continúa figurando en la biblioteca con su programación diaria activa
+Y la plantilla maestra permanece intacta en el catálogo.
+```
+
+### Escenario: Pausa temporal de tarea por N días [REQ-LIB-008]
+```gherkin
+Dado que "Mateo" tiene asignada una tarea diaria
+Cuando el padre pulsa "[ ❌ Desasignar / Pausar ]"
+Y selecciona "⚪ Pausar temporalmente por varios días" especificando "3 días"
+Y confirma la acción
+Entonces el visor interactivo muestra el estado pausado indicando la fecha de reactivación
+Y la tarea no se genera durante el período de pausa
+Y la plantilla maestra permanece intacta.
+```
+
+### Escenario: Desasignación permanente de futuras asignaciones sin borrar plantilla [REQ-LIB-008]
+```gherkin
+Dado que la tarea "Pasear al perro" está asignada a "Sofía"
+Cuando el padre pulsa "[ ❌ Desasignar / Pausar ]"
+Y selecciona "⚪ Desasignar de futuras asignaciones (Permanente)"
+Y confirma la acción
+Entonces Sofía deja de tener la tarea programada en la biblioteca
 Y la plantilla "Pasear al perro" permanece intacta en el catálogo familiar para futuros usos.
 ```
 

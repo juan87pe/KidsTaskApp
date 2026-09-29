@@ -455,19 +455,105 @@ export const AppProvider = ({ children }) => {
     });
   };
 
-  const unassignChildFromTask = (masterTaskId, childId) => {
-    setData(prev => ({
-      ...prev,
-      masterTasks: prev.masterTasks.map(mt => {
-        if (mt.id === masterTaskId) {
-          return {
-            ...mt,
-            assignedChildren: (mt.assignedChildren || []).filter(ac => (ac.childId || ac) !== childId)
-          };
-        }
-        return mt;
-      })
-    }));
+  const unassignChildFromTask = (masterTaskId, childId, options = {}) => {
+    const scope = options.scope || 'permanent'; // 'today' | 'pause' | 'permanent'
+    const pauseDays = options.pauseDays || 3;
+    const pausedUntil = options.pausedUntil || options.pauseUntil || '';
+
+    setData(prev => {
+      const masterTask = prev.masterTasks.find(mt => mt.id === masterTaskId);
+      const taskTitle = masterTask ? masterTask.title : '';
+
+      // Helper to filter out today's unapproved task instance if unassigned/paused
+      const removeTodayUnapproved = (assignments) => {
+        return assignments.filter(asg => {
+          const isTargetChild = asg.childId === childId;
+          const isTargetTask = (asg.masterTaskId && asg.masterTaskId === masterTaskId) ||
+                               (taskTitle && asg.title?.toLowerCase() === taskTitle.toLowerCase());
+          if (isTargetChild && isTargetTask && asg.status !== 'approved') {
+            return false;
+          }
+          return true;
+        });
+      };
+
+      // 1. Permanent removal
+      if (scope === 'permanent') {
+        const updatedMasterTasks = prev.masterTasks.map(mt => {
+          if (mt.id === masterTaskId) {
+            return {
+              ...mt,
+              assignedChildren: (mt.assignedChildren || []).filter(ac => (ac.childId || ac) !== childId)
+            };
+          }
+          return mt;
+        });
+
+        return {
+          ...prev,
+          masterTasks: updatedMasterTasks,
+          todayAssignments: removeTodayUnapproved(prev.todayAssignments)
+        };
+      }
+
+      // 2. Only for today
+      if (scope === 'today') {
+        const updatedMasterTasks = prev.masterTasks.map(mt => {
+          if (mt.id === masterTaskId) {
+            return {
+              ...mt,
+              assignedChildren: (mt.assignedChildren || []).map(ac => {
+                if ((ac.childId || ac) === childId) {
+                  return typeof ac === 'object'
+                    ? { ...ac, skippedToday: true }
+                    : { childId: ac, skippedToday: true };
+                }
+                return ac;
+              })
+            };
+          }
+          return mt;
+        });
+
+        return {
+          ...prev,
+          masterTasks: updatedMasterTasks,
+          todayAssignments: removeTodayUnapproved(prev.todayAssignments)
+        };
+      }
+
+      // 3. Pause for N days
+      if (scope === 'pause') {
+        const updatedMasterTasks = prev.masterTasks.map(mt => {
+          if (mt.id === masterTaskId) {
+            return {
+              ...mt,
+              assignedChildren: (mt.assignedChildren || []).map(ac => {
+                if ((ac.childId || ac) === childId) {
+                  const base = typeof ac === 'object' ? ac : { childId: ac };
+                  return {
+                    ...base,
+                    isPaused: true,
+                    pausedUntil,
+                    pauseDays
+                  };
+                }
+                return ac;
+              })
+            };
+          }
+          return mt;
+        });
+
+        return {
+          ...prev,
+          masterTasks: updatedMasterTasks,
+          todayAssignments: removeTodayUnapproved(prev.todayAssignments)
+        };
+      }
+
+      return prev;
+    });
   };
 
   // Master Tasks CRUD
@@ -915,6 +1001,7 @@ export const AppProvider = ({ children }) => {
         injectRoutine,
         assignMasterTaskToChild,
         unassignChildFromTask,
+        unassignOrPauseChildTask: unassignChildFromTask,
         saveMasterTask,
         deleteMasterTask,
         saveMasterRoutine,

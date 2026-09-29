@@ -220,7 +220,7 @@ describe('Feature 03: Biblioteca Familiar y Rutinas (BDD Scenarios)', () => {
     });
   });
 
-  it('Escenario 4: Visor interactivo y desasignación sin borrado de plantilla [REQ-LIB-007] [REQ-LIB-008]', async () => {
+  it('Escenario 4: Diálogo contextual de desasignación y desasignación permanente [REQ-LIB-007] [REQ-LIB-008]', async () => {
     render(
       <AppProvider>
         <App />
@@ -243,9 +243,24 @@ describe('Feature 03: Biblioteca Familiar y Rutinas (BDD Scenarios)', () => {
       expect(screen.getByText(/Diaria continua/i)).toBeInTheDocument();
     });
 
-    // Click "[ ❌ Desasignar / Pausar ]"
+    // Click "[ ❌ Desasignar / Pausar ]" -> opens UnassignOrPauseModal
     const unassignBtn = screen.getByRole('button', { name: /Desasignar \/ Pausar/i });
     fireEvent.click(unassignBtn);
+
+    // Modal is opened showing contextual options for daily schedule
+    await waitFor(() => {
+      expect(screen.getByText(/⚙️ Desasignar o Pausar Tarea/i)).toBeInTheDocument();
+      expect(screen.getByText(/Solo por el día de hoy/i)).toBeInTheDocument();
+      expect(screen.getByText(/Pausar temporalmente por varios días/i)).toBeInTheDocument();
+      expect(screen.getByText(/Desasignar de todas las futuras asignaciones \(Permanente\)/i)).toBeInTheDocument();
+    });
+
+    // Select permanent unassignment
+    fireEvent.click(screen.getByText(/Desasignar de todas las futuras asignaciones \(Permanente\)/i));
+
+    // Confirm action
+    const confirmBtn = screen.getByRole('button', { name: /Confirmar Desasignación/i });
+    fireEvent.click(confirmBtn);
 
     // Sofia is unassigned, viewer shows "Sin asignaciones activas para esta tarea."
     await waitFor(() => {
@@ -254,6 +269,86 @@ describe('Feature 03: Biblioteca Familiar y Rutinas (BDD Scenarios)', () => {
 
     // The master task "Pasear al perro" remains intact in library
     expect(screen.getByText('Pasear al perro')).toBeInTheDocument();
+  });
+
+  it('Escenario 4b: Pausar temporalmente por varios días con cálculo de reanudación [REQ-LIB-008]', async () => {
+    render(
+      <AppProvider>
+        <App />
+      </AppProvider>
+    );
+
+    await unlockParentMode('library');
+
+    // Locate "Pasear al perro" and expand
+    await waitFor(() => {
+      expect(screen.getByText('Pasear al perro')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Pasear al perro'));
+
+    // Click "[ ❌ Desasignar / Pausar ]"
+    const unassignBtn = screen.getByRole('button', { name: /Desasignar \/ Pausar/i });
+    fireEvent.click(unassignBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/⚙️ Desasignar o Pausar Tarea/i)).toBeInTheDocument();
+    });
+
+    // Select "Pausar temporalmente"
+    fireEvent.click(screen.getByText(/Pausar temporalmente por varios días/i));
+
+    // Select 5 days
+    const fiveDaysBtn = screen.getByRole('button', { name: /5 días/i });
+    fireEvent.click(fiveDaysBtn);
+
+    // Confirm pause
+    const confirmBtn = screen.getByRole('button', { name: /Pausar por 5 días/i });
+    fireEvent.click(confirmBtn);
+
+    // Modal closes and viewer shows paused status badge
+    await waitFor(() => {
+      expect(screen.getByText(/⏸️ Pausada hasta/i)).toBeInTheDocument();
+    });
+
+    // Sofia is still in the assignment list, but marked as paused
+    expect(screen.getByText(/Sofía:\s*/i)).toBeInTheDocument();
+  });
+
+  it('Escenario 4c: Omitir desasignación solo por el día de hoy manteniendo regla activa [REQ-LIB-008]', async () => {
+    render(
+      <AppProvider>
+        <App />
+      </AppProvider>
+    );
+
+    await unlockParentMode('library');
+
+    // Locate "Pasear al perro" and expand
+    await waitFor(() => {
+      expect(screen.getByText('Pasear al perro')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Pasear al perro'));
+
+    // Click "[ ❌ Desasignar / Pausar ]"
+    const unassignBtn = screen.getByRole('button', { name: /Desasignar \/ Pausar/i });
+    fireEvent.click(unassignBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/⚙️ Desasignar o Pausar Tarea/i)).toBeInTheDocument();
+    });
+
+    // Select "Solo por el día de hoy"
+    fireEvent.click(screen.getByText(/Solo por el día de hoy/i));
+
+    // Confirm action
+    const confirmBtn = screen.getByRole('button', { name: /Omitir solo por hoy/i });
+    fireEvent.click(confirmBtn);
+
+    // Sofia remains assigned in the library viewer with badge "Omitida hoy"
+    await waitFor(() => {
+      expect(screen.getByText(/Sofía:\s*/i)).toBeInTheDocument();
+      expect(screen.getByText(/⏭️ Omitida hoy/i)).toBeInTheDocument();
+    });
   });
 
   it('Escenario 5: Visualización y disponibilidad de tareas de rutinas en el catálogo general [REQ-LIB-010]', async () => {

@@ -3,14 +3,41 @@ import { useApp } from '../../context/AppContext';
 import { BookOpen, Plus, Zap, Trash2, Edit2, CheckCircle2, ChevronRight, Calendar, Users, ChevronDown, ChevronUp, UserCheck, X } from 'lucide-react';
 import { GlassCard } from '../Common/GlassCard';
 import { ChunkyButton } from '../Common/ChunkyButton';
+import { UnassignOrPauseModal } from './UnassignOrPauseModal';
 
 export const MasterLibrary = ({ onOpenCreateTask, onOpenCreateRoutine, onAssignTaskToChild, onInjectRoutineToChild }) => {
   const { data, deleteMasterTask, deleteMasterRoutine, unassignChildFromTask } = useApp();
   const [activeTab, setActiveTab] = useState('tasks'); // 'tasks' | 'routines'
   const [expandedTaskId, setExpandedTaskId] = useState(null);
+  const [unassignModalState, setUnassignModalState] = useState({
+    isOpen: false,
+    task: null,
+    child: null,
+    assignment: null
+  });
 
   const toggleTaskExpand = (taskId) => {
     setExpandedTaskId(prev => prev === taskId ? null : taskId);
+  };
+
+  const handleOpenUnassign = (task, child, assignment) => {
+    setUnassignModalState({
+      isOpen: true,
+      task,
+      child,
+      assignment
+    });
+  };
+
+  const handleConfirmUnassign = ({ scope, pauseDays, pauseUntil }) => {
+    if (unassignModalState.task && unassignModalState.child) {
+      unassignChildFromTask(unassignModalState.task.id, unassignModalState.child.id, {
+        scope,
+        pauseDays,
+        pauseUntil
+      });
+    }
+    setUnassignModalState({ isOpen: false, task: null, child: null, assignment: null });
   };
 
   return (
@@ -180,6 +207,9 @@ export const MasterLibrary = ({ onOpenCreateTask, onOpenCreateRoutine, onAssignT
                           const child = data.children.find(c => c.id === childId);
                           const scheduleLabel = ac.scheduleText || 'Diaria continua';
 
+                          const isPaused = ac.isPaused || (ac.pausedUntil && new Date(ac.pausedUntil) >= new Date());
+                          const isSkippedToday = ac.skippedToday;
+
                           return (
                             <div
                               key={idx}
@@ -190,11 +220,21 @@ export const MasterLibrary = ({ onOpenCreateTask, onOpenCreateRoutine, onAssignT
                                 <div>
                                   <span className="font-extrabold text-slate-800">{child?.name}: </span>
                                   <span className="font-semibold text-slate-600">{scheduleLabel}</span>
+                                  {isPaused && (
+                                    <span className="ml-2 font-extrabold text-[10px] text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                                      ⏸️ Pausada hasta {ac.pausedUntil}
+                                    </span>
+                                  )}
+                                  {isSkippedToday && !isPaused && (
+                                    <span className="ml-2 font-extrabold text-[10px] text-sky-800 bg-sky-100 border border-sky-300 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                                      ⏭️ Omitida hoy
+                                    </span>
+                                  )}
                                 </div>
                               </div>
 
                               <button
-                                onClick={() => unassignChildFromTask(task.id, childId)}
+                                onClick={() => handleOpenUnassign(task, child, ac)}
                                 className="px-2.5 py-1 rounded bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 font-bold text-xs transition flex items-center gap-1"
                               >
                                 <X size={12} />
@@ -273,6 +313,16 @@ export const MasterLibrary = ({ onOpenCreateTask, onOpenCreateRoutine, onAssignT
           ))}
         </div>
       )}
+
+      {/* Modal Contextual de Desasignación o Pausa [REQ-LIB-008] */}
+      <UnassignOrPauseModal
+        isOpen={unassignModalState.isOpen}
+        onClose={() => setUnassignModalState({ isOpen: false, task: null, child: null, assignment: null })}
+        task={unassignModalState.task}
+        child={unassignModalState.child}
+        assignment={unassignModalState.assignment}
+        onConfirm={handleConfirmUnassign}
+      />
 
     </div>
   );

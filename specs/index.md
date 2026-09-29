@@ -66,7 +66,7 @@ specs/
 | `[REQ-LIB-005]` | Motor de programación temporal (5 modos)| `03-master-library-and-routines` | `ADR-0004` | Escenario: Programación temporal semanal | `AssignMasterTaskModal.jsx` |
 | `[REQ-LIB-006]` | Detección preventiva de duplicados | `03-master-library-and-routines` | `ADR-0004` | Escenario: Inyección con detección duplicado | `DuplicateDetectionModal.jsx` |
 | `[REQ-LIB-007]` | Visor interactivo de asignaciones activas | `03-master-library-and-routines` | `ADR-0004` | Escenario: Visor interactivo y desasignación | `MasterLibrary.jsx` |
-| `[REQ-LIB-008]` | Desasignación sin borrado de plantilla | `03-master-library-and-routines` | `ADR-0004` | Escenario: Visor interactivo y desasignación | `MasterLibrary.jsx` |
+| `[REQ-LIB-008]` | Desasignación/Pausa contextual por programación | `03-master-library-and-routines` | `ADR-0004` | Escenario: Visor interactivo y apertura del diálogo contextual | `UnassignOrPauseModal.jsx`, `MasterLibrary.jsx` |
 | `[REQ-LIB-009]` | Inyección de rutina a jornada diaria | `03-master-library-and-routines` | `ADR-0004` | Escenario: Inyección con detección duplicado | `InjectRoutineModal.jsx` |
 | `[REQ-LIB-010]` | Tareas de rutina en catálogo general | `03-master-library-and-routines` | `ADR-0004` | Escenario: Tareas de rutinas en catálogo general | `MasterLibrary.jsx`, `AppContext.jsx` |
 | `[REQ-REW-001]` | Catálogo de recompensas familiares | `04-rewards-and-locks` | `ADR-0002` | Escenario: Bloqueo temporal de premio | `RewardManager.jsx` |

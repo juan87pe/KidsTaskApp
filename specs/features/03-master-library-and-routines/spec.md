@@ -38,8 +38,16 @@
   - Reglas de programación temporal vigentes por cada hijo.
   - Botones de acción rápida: `[ 🔄 Modificar Programación ]`, `[ ❌ Desasignar / Pausar ]`, `[ 🚀 Asignar a un nuevo hijo ]`.
 
-### [REQ-LIB-008] Desasignación sin Borrado de Catálogo
-- **CUANDO** un padre desasigne o pause una tarea de un hijo, el sistema deberá suspender las futuras asignaciones diarias de ese niño manteniendo intacta la plantilla maestra en la biblioteca.
+### [REQ-LIB-008] Diálogo Contextual de Desasignación, Pausa Temporal y Alcance por Programación
+- **CUANDO** un padre pulse el botón `[ ❌ Desasignar / Pausar ]` en la ficha de asignación de un hijo, el sistema deberá desplegar el modal interactivo `UnassignOrPauseModal` presentando opciones de alcance temporal adaptadas a la modalidad de programación activa de la tarea:
+  - **SI** la tarea está programada de forma **Diaria Continua (`daily`)**, **ENTONCES** el sistema deberá ofrecer:
+    1. *🔘 Solo por el día de hoy*: Eliminar la tarea únicamente de la jornada actual (`todayAssignments`) de ese niño, preservando la regla recurrente para los días venideros.
+    2. *⚪ Pausar temporalmente por N días*: Suspender las asignaciones automáticas durante una cantidad configurable de días (selector numérico de 1 a 30 días con cálculo de fecha de reactivación), reanudándose automáticamente al vencer dicho lapso.
+    3. *⚪ Desasignar de todas las futuras asignaciones (Permanente)*: Cancelar de forma definitiva la regla de asignación recurrente para ese hijo, removiéndolo de `assignedChildren` en la biblioteca.
+  - **SI** la tarea está programada de forma **Semanal / Días Fijos (`weekly`)**, **ENTONCES** el sistema deberá ofrecer opciones contextuales a los días establecidos (ej. *Solo por este [Día] / ocurrencia actual*, *Pausar por N días/semanas*, o *Desasignar permanentemente de los días fijados*).
+  - **SI** la tarea está programada para **Fecha Específica (`specific_date`)** o **Para el Día Actual (`today`)**, **ENTONCES** el sistema deberá ofrecer desasignar la instancia de dicha fecha puntual.
+  - **SI** la tarea está programada por **Rango de Fechas / Período (`date_range`)**, **ENTONCES** el sistema deberá ofrecer suspender la ocurrencia de hoy o cancelar el período completo restante.
+- **Universal:** Ante cualquier opción seleccionada de desasignación o pausa, la plantilla maestra en la biblioteca familiar (`masterTasks`) deberá permanecer intacta e inmutable para futuros usos o asignaciones a otros miembros.
 
 ### [REQ-LIB-009] Inyección Directa de Rutina a la Jornada
 - **CUANDO** un padre use el botón `"🚀 Inyectar Rutina"` desde la Ficha Diaria de un hijo, el sistema deberá generar las tareas en el orden secuencial de la rutina para la fecha de hoy, aplicando la detección de duplicados correspondiente.

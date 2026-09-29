@@ -12,9 +12,10 @@
   - `src/components/Parent/TaskMasterModal.jsx`: Modal CRUD de tareas maestras (puntos, icono, modo aprobación, notas).
   - `src/components/Parent/RoutineMasterModal.jsx`: Constructor de rutinas con selección de tareas y orden secuencial.
   - `src/components/Parent/AssignMasterTaskModal.jsx`: Modal con selector de 5 modalidades de programación temporal.
+  - `src/components/Parent/UnassignOrPauseModal.jsx`: Diálogo modal contextual para desasignar o pausar tareas por día, período o permanentemente.
   - `src/components/Parent/InjectRoutineModal.jsx`: Modal de inyección directa de rutinas a un hijo.
   - `src/components/Parent/DuplicateDetectionModal.jsx`: Modal preventivo para omitir o duplicar (x2).
-- **Estado Contextual:** `masterTasks`, `masterRoutines`, `assignMasterTask()`, `injectRoutine()`, `toggleTaskAssignment()`.
+- **Estado Contextual:** `masterTasks`, `masterRoutines`, `assignMasterTask()`, `injectRoutine()`, `unassignOrPauseChildTask()`.
 
 ---
 
@@ -30,4 +31,7 @@
 - [x] `TASK-LIB-08`: Desarrollar `InjectRoutineModal.jsx` para inyección en 1-clic desde la Ficha Diaria.
 - [x] `TASK-LIB-09`: Crear pruebas de integración para el motor de duplicados, reutilización de tareas y programación temporal.
 - [x] `TASK-LIB-10`: Unificar la visualización de tareas en el catálogo general (`masterTasks`) para incluir todas las tareas de rutinas con sus insignias asociadas y persistencia bidireccional al crear tareas dentro de una rutina.
+- [x] `TASK-LIB-11`: Implementar `UnassignOrPauseModal.jsx` con opciones dinámicas según `scheduleType` (hoy, N días de pausa, permanentes).
+- [x] `TASK-LIB-12`: Extender `unassignOrPauseChildTask` en `AppContext.jsx` y conectarlo a `MasterLibrary.jsx` con visualización de estado en pausa.
+- [x] `TASK-LIB-13`: Actualizar y expandir la suite de pruebas BDD en `src/test/features/03-master-library-and-routines.test.jsx`.
 
