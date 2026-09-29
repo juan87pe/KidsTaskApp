@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KidsTaskAppEntitiesSchema",
+  "description": "Esquema formal de validación para las entidades del modelo de datos de KidsTaskApp",
+  "type": "object",
+  "definitions": {
+    "Family": {
+      "type": "object",
+      "required": ["id", "name", "masterPin", "pointsRule", "createdAt"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "masterPin": { "type": "string", "pattern": "^[0-9]{4}$" },
+        "pointsRule": {
+          "type": "string",
+          "enum": ["continuous", "daily_reset", "weekly_reset"]
+        },
+        "autoLiquidation": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "rewardType": { "type": "string", "enum": ["money_allowance", "custom_reward"] },
+            "conversionRate": { "type": "number", "minimum": 0 },
+            "currencySymbol": { "type": "string" },
+            "customRewardTitle": { "type": "string" },
+            "customRewardId": { "type": ["string", "null"] }
+          }
+        },
+        "createdAt": { "type": "string" }
+      }
+    },
+    "Tutor": {
+      "type": "object",
+      "required": ["id", "familyId", "name", "role"],
+      "properties": {
+        "id": { "type": "string" },
+        "familyId": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "tutor"] }
+      }
+    },
+    "Child": {
+      "type": "object",
+      "required": ["id", "familyId", "name", "currentPoints", "avatarUrl", "colorTheme"],
+      "properties": {
+        "id": { "type": "string" },
+        "familyId": { "type": "string" },
+        "name": { "type": "string" },
+        "avatarUrl": { "type": "string" },
+        "currentPoints": { "type": "integer", "minimum": 0 },
+        "colorTheme": { "type": "string" },
+        "level": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "MasterTask": {
+      "type": "object",
+      "required": ["id", "familyId", "title", "defaultPoints", "defaultApprovalMode", "iconSvg"],
+      "properties": {
+        "id": { "type": "string" },
+        "familyId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "defaultPoints": { "type": "integer", "minimum": 0 },
+        "defaultApprovalMode": {
+          "type": "string",
+          "enum": ["kid_request", "parent_only"]
+        },
+        "iconSvg": { "type": "string" }
+      }
+    },
+    "MasterRoutine": {
+      "type": "object",
+      "required": ["id", "familyId", "title", "tasks"],
+      "properties": {
+        "id": { "type": "string" },
+        "familyId": { "type": "string" },
+        "title": { "type": "string" },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "points", "orderIndex"],
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "points": { "type": "integer" },
+              "orderIndex": { "type": "integer" },
+              "iconSvg": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "DailyAssignment": {
+      "type": "object",
+      "required": ["id", "familyId", "childId", "title", "points", "orderIndex", "status", "date"],
+      "properties": {
+        "id": { "type": "string" },
+        "familyId": { "type": "string" },
+        "childId": { "type": "string" },
+        "masterTaskId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "points": { "type": "integer" },
+        "orderIndex": { "type": "integer", "minimum": 0 },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "requested", "approved", "rejected", "uncompleted"]
+        },
+        "approvalMode": {
+          "type": "string",
+          "enum": ["kid_request", "parent_only"]
+        },
+        "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "instanceTag": { "type": "string" },
+        "completedAt": { "type": ["string", "null"] },
+        "approvedBy": { "type": ["string", "null"] },
+        "isRetroactivelyModified": { "type": "boolean" },
+        "iconSvg": { "type": "string" }
+      }
+    },
+    "Reward": {
+      "type": "object",
+      "required": ["id", "familyId", "title", "pointsCost", "isLocked"],
+      "properties": {
+        "id": { "type": "string" },
+        "familyId": { "type": "string" },
+        "title": { "type": "string" },
+        "pointsCost": { "type": "integer", "minimum": 1 },
+        "targetChildId": { "type": ["string", "null"] },
+        "isLocked": { "type": "boolean" },
+        "lockUntil": { "type": ["string", "null"] },
+        "lockReason": { "type": ["string", "null"] },
+        "iconSvg": { "type": "string" }
+      }
+    },
+    "Transaction": {
+      "type": "object",
+      "required": ["id", "familyId", "childId", "type", "points", "reason", "date", "timestamp", "isReversed"],
+      "properties": {
+        "id": { "type": "string" },
+        "familyId": { "type": "string" },
+        "childId": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["task_reward", "bonus", "penalty", "reward_redemption", "refund_reversal", "retroactive_adjustment"]
+        },
+        "points": { "type": "integer" },
+        "reason": { "type": "string" },
+        "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "actor": { "type": "string" },
+        "isReversed": { "type": "boolean" },
+        "reversedBy": { "type": ["string", "null"] },
+        "timestamp": { "type": "string" }
+      }
+    }
+  }
+}
