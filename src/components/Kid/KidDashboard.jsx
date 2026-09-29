@@ -159,7 +159,7 @@ export const KidDashboard = () => {
                             onClick={() => toggleNote(task.id)}
                             className="text-[11px] font-bold text-sky-700 hover:underline flex items-center gap-0.5"
                           >
-                            <span>Instrucción</span>
+                            <span>ℹ️ Ver detalle / nota</span>
                             {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                           </button>
                         )}
@@ -179,7 +179,7 @@ export const KidDashboard = () => {
                     {isRequested && (
                       <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-squircle-sm bg-amber-100 border border-amber-300 text-amber-800 text-xs font-bold animate-pulse">
                         <Clock size={15} />
-                        <span>Revisando ⏳</span>
+                        <span>Esperando a papá/mamá ⏳</span>
                       </div>
                     )}
 

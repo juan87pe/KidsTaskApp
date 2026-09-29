@@ -208,7 +208,7 @@ export const ChildDailyControlView = ({ onOpenInjectRoutine, onOpenQuickTask, on
                             onClick={() => toggleNote(task.id)}
                             className="text-[11px] font-bold text-sky-600 hover:underline flex items-center gap-0.5"
                           >
-                            <span>Nota</span>
+                            <span>ℹ️ Ver detalle / nota</span>
                             {isExpanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
                           </button>
                         )}

@@ -135,6 +135,7 @@ export const AppProvider = ({ children }) => {
       if (!task) return prev;
       taskPoints = task.points;
       targetChildId = task.childId;
+      const todayStr = new Date().toISOString().split('T')[0];
 
       const updatedAssignments = prev.todayAssignments.map(asg => {
         if (asg.id === assignmentId) {
@@ -154,10 +155,24 @@ export const AppProvider = ({ children }) => {
         return c;
       });
 
+      const newTx = {
+        id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        familyId: prev.family?.id || 'fam-1',
+        childId: targetChildId,
+        type: 'task_reward',
+        points: taskPoints,
+        reason: `Aprobación de tarea: ${task.title}`,
+        date: todayStr,
+        timestamp: new Date().toISOString(),
+        actor: activeTutor.name,
+        isReversed: false
+      };
+
       return {
         ...prev,
         todayAssignments: updatedAssignments,
-        children: updatedChildren
+        children: updatedChildren,
+        transactions: [...(prev.transactions || []), newTx]
       };
     });
 
@@ -186,6 +201,7 @@ export const AppProvider = ({ children }) => {
       const isApproved = task.status === 'approved';
       const pointsDiff = isApproved ? -task.points : task.points;
       const newStatus = isApproved ? 'pending' : 'approved';
+      const todayStr = new Date().toISOString().split('T')[0];
 
       const updatedAssignments = prev.todayAssignments.map(asg => {
         if (asg.id === assignmentId) {
@@ -206,10 +222,24 @@ export const AppProvider = ({ children }) => {
         return c;
       });
 
+      const newTx = {
+        id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        familyId: prev.family?.id || 'fam-1',
+        childId: task.childId,
+        type: isApproved ? 'retroactive_adjustment' : 'task_reward',
+        points: pointsDiff,
+        reason: isApproved ? `Reversión de tarea: ${task.title}` : `Validación directa: ${task.title}`,
+        date: todayStr,
+        timestamp: new Date().toISOString(),
+        actor: activeTutor.name,
+        isReversed: false
+      };
+
       return {
         ...prev,
         todayAssignments: updatedAssignments,
-        children: updatedChildren
+        children: updatedChildren,
+        transactions: [...(prev.transactions || []), newTx]
       };
     });
   };
@@ -218,10 +248,24 @@ export const AppProvider = ({ children }) => {
   const approveAllPendingTasks = () => {
     setData(prev => {
       let pointsToAddByChild = {};
+      const newTransactions = [];
+      const todayStr = new Date().toISOString().split('T')[0];
 
       const updatedAssignments = prev.todayAssignments.map(asg => {
         if (asg.status === 'requested') {
           pointsToAddByChild[asg.childId] = (pointsToAddByChild[asg.childId] || 0) + asg.points;
+          newTransactions.push({
+            id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+            familyId: prev.family?.id || 'fam-1',
+            childId: asg.childId,
+            type: 'task_reward',
+            points: asg.points,
+            reason: `Aprobación masiva: ${asg.title}`,
+            date: todayStr,
+            timestamp: new Date().toISOString(),
+            actor: activeTutor.name,
+            isReversed: false
+          });
           return {
             ...asg,
             status: 'approved',
@@ -239,7 +283,8 @@ export const AppProvider = ({ children }) => {
       return {
         ...prev,
         todayAssignments: updatedAssignments,
-        children: updatedChildren
+        children: updatedChildren,
+        transactions: [...(prev.transactions || []), ...newTransactions]
       };
     });
 

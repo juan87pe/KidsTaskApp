@@ -19,12 +19,12 @@
 
 ## 2. Checklist de Tareas Atómicas
 
-- [ ] `TASK-TASK-01`: Modelar las entidades `dailyAssignments` con atributos `orderIndex`, `approvalMode`, `instanceTag`, `description` y `status`.
-- [ ] `TASK-TASK-02`: Implementar renderizado secuencial de tareas en `KidDashboard.jsx` respetando `orderIndex`.
-- [ ] `TASK-TASK-03`: Añadir botón desplegable de instrucciones/notas `[ ℹ️ Ver detalle / nota ▾ ]` en `KidDashboard.jsx` y `ChildDailyControlView.jsx`.
-- [ ] `TASK-TASK-04`: Desarrollar mecanismo de reordenamiento de tareas (Drag & Drop y botones de flecha ▲/▼) en `ChildDailyControlView.jsx`.
-- [ ] `TASK-TASK-05`: Implementar flujo de solicitud infantil `"¡Ya la hice! 🚀"` con cambio de estado a `requested`.
-- [ ] `TASK-TASK-06`: Construir `ApprovalsHub.jsx` con tarjetas de aprobación individual y botón global `"Aprobar Todas las Tareas (X) 🚀"`.
-- [ ] `TASK-TASK-07`: Integrar emisión de transacciones contables `task_reward` al aprobar tareas con disparo de confeti reactivo.
-- [ ] `TASK-TASK-08`: Añadir controles de edición puntual y borrado de tareas del día en `ChildDailyControlView.jsx`.
-- [ ] `TASK-TASK-09`: Crear suite de pruebas de integración para el ciclo de vida completo de tareas y reordenamiento.
+- [x] `TASK-TASK-01`: Modelar las entidades `dailyAssignments` con atributos `orderIndex`, `approvalMode`, `instanceTag`, `description` y `status`.
+- [x] `TASK-TASK-02`: Implementar renderizado secuencial de tareas en `KidDashboard.jsx` respetando `orderIndex`.
+- [x] `TASK-TASK-03`: Añadir botón desplegable de instrucciones/notas `[ ℹ️ Ver detalle / nota ▾ ]` en `KidDashboard.jsx` y `ChildDailyControlView.jsx`.
+- [x] `TASK-TASK-04`: Desarrollar mecanismo de reordenamiento de tareas (Drag & Drop y botones de flecha ▲/▼) en `ChildDailyControlView.jsx`.
+- [x] `TASK-TASK-05`: Implementar flujo de solicitud infantil `"¡Ya la hice! 🚀"` con cambio de estado a `requested`.
+- [x] `TASK-TASK-06`: Construir `ApprovalsHub.jsx` con tarjetas de aprobación individual y botón global `"Aprobar Todas las Tareas (X) 🚀"`.
+- [x] `TASK-TASK-07`: Integrar emisión de transacciones contables `task_reward` al aprobar tareas con disparo de confeti reactivo.
+- [x] `TASK-TASK-08`: Añadir controles de edición puntual y borrado de tareas del día en `ChildDailyControlView.jsx`.
+- [x] `TASK-TASK-09`: Crear suite de pruebas de integración para el ciclo de vida completo de tareas y reordenamiento.

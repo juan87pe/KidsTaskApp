@@ -351,5 +351,6 @@ export const INITIAL_DATA = {
         bonuses: []
       }
     }
-  }
+  },
+  transactions: []
 };
