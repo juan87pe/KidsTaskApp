@@ -20,14 +20,14 @@
 
 ## 2. Checklist de Tareas Atómicas
 
-- [ ] `TASK-LIB-01`: Diseñar esquema de persistencia para `masterTasks` y `masterRoutines` en `AppContext.jsx`.
-- [ ] `TASK-LIB-02`: Desarrollar `MasterLibrary.jsx` con navegación por pestañas y buscador/filtro.
-- [ ] `TASK-LIB-03`: Implementar `TaskMasterModal.jsx` con soporte para icono, puntos, modo de aprobación y campo opcional de notas.
-- [ ] `TASK-LIB-04`: Construir `RoutineMasterModal.jsx` permitiendo selección de tareas del catálogo y reordenamiento de secuencia.
-- [ ] `TASK-LIB-05`: Implementar `AssignMasterTaskModal.jsx` con soporte completo para las 5 modalidades temporales (Hoy, Diaria, Semanal, Fecha, Rango).
-- [ ] `TASK-LIB-06`: Desarrollar el visor interactivo de asignaciones activas dentro de `MasterLibrary.jsx` (hijos, recurrencia, botones de acción).
-- [ ] `TASK-LIB-07`: Implementar `DuplicateDetectionModal.jsx` y la lógica de detección previa al insertar tareas en `dailyAssignments`.
-- [ ] `TASK-LIB-08`: Desarrollar `InjectRoutineModal.jsx` para inyección en 1-clic desde la Ficha Diaria.
-- [ ] `TASK-LIB-09`: Crear pruebas de integración para el motor de duplicados, reutilización de tareas y programación temporal.
-- [ ] `TASK-LIB-10`: Unificar la visualización de tareas en el catálogo general (`masterTasks`) para incluir todas las tareas de rutinas con sus insignias asociadas y persistencia bidireccional al crear tareas dentro de una rutina.
+- [x] `TASK-LIB-01`: Diseñar esquema de persistencia para `masterTasks` y `masterRoutines` en `AppContext.jsx`.
+- [x] `TASK-LIB-02`: Desarrollar `MasterLibrary.jsx` con navegación por pestañas y buscador/filtro.
+- [x] `TASK-LIB-03`: Implementar `TaskMasterModal.jsx` con soporte para icono, puntos, modo de aprobación y campo opcional de notas.
+- [x] `TASK-LIB-04`: Construir `RoutineMasterModal.jsx` permitiendo selección de tareas del catálogo y reordenamiento de secuencia.
+- [x] `TASK-LIB-05`: Implementar `AssignMasterTaskModal.jsx` con soporte completo para las 5 modalidades temporales (Hoy, Diaria, Semanal, Fecha, Rango).
+- [x] `TASK-LIB-06`: Desarrollar el visor interactivo de asignaciones activas dentro de `MasterLibrary.jsx` (hijos, recurrencia, botones de acción).
+- [x] `TASK-LIB-07`: Implementar `DuplicateDetectionModal.jsx` y la lógica de detección previa al insertar tareas en `dailyAssignments`.
+- [x] `TASK-LIB-08`: Desarrollar `InjectRoutineModal.jsx` para inyección en 1-clic desde la Ficha Diaria.
+- [x] `TASK-LIB-09`: Crear pruebas de integración para el motor de duplicados, reutilización de tareas y programación temporal.
+- [x] `TASK-LIB-10`: Unificar la visualización de tareas en el catálogo general (`masterTasks`) para incluir todas las tareas de rutinas con sus insignias asociadas y persistencia bidireccional al crear tareas dentro de una rutina.
 

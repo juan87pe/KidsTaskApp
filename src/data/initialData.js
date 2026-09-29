@@ -89,18 +89,29 @@ export const INITIAL_DATA = {
     },
     {
       id: 'mt-7',
-      title: 'Pasear a la mascota',
+      title: 'Pasear al perro',
       defaultPoints: 25,
       defaultApprovalMode: 'kid_request',
       iconSvg: '🐕',
       category: 'Responsabilidad',
-      description: 'Paseo de 15 minutos llevando la correa con cuidado y bolsa de limpieza.'
+      description: 'Paseo de 15 minutos llevando la correa con cuidado y bolsa de limpieza.',
+      assignedChildren: [{ childId: 'child-sofia', scheduleType: 'daily', scheduleText: 'Diaria continua' }]
+    },
+    {
+      id: 'mt-8',
+      title: 'Regar las plantas',
+      defaultPoints: 15,
+      defaultApprovalMode: 'kid_request',
+      iconSvg: '🌱',
+      category: 'Hogar',
+      description: 'Regar las macetas del balcón sin encharcar la tierra.',
+      assignedChildren: []
     }
   ],
   masterRoutines: [
     {
       id: 'mr-1',
-      title: 'Rutina Mañanera Escolar',
+      title: 'Rutina Mañanera',
       icon: '🌅',
       description: 'Pasos esenciales antes de salir rumbo al colegio.',
       tasks: [

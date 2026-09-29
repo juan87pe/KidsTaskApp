@@ -415,17 +415,59 @@ export const AppProvider = ({ children }) => {
   };
 
   // Assign master task directly
-  const assignMasterTaskToChild = (childId, masterTaskId, customSchedule = 'today') => {
+  const assignMasterTaskToChild = (childId, masterTaskId, customSchedule = 'today', scheduleDetails = '') => {
     const masterTask = data.masterTasks.find(mt => mt.id === masterTaskId);
     if (!masterTask) return;
+
+    let scheduleText = 'Para el Día Actual (Hoy)';
+    if (customSchedule === 'daily') scheduleText = 'Diaria continua';
+    else if (customSchedule === 'weekdays') scheduleText = 'Días de Escuela (L-V)';
+    else if (customSchedule === 'weekly') scheduleText = scheduleDetails ? `Semanal (${scheduleDetails})` : 'Semanal (Días Fijos)';
+    else if (customSchedule === 'specific_date') scheduleText = `Fecha (${scheduleDetails})`;
+    else if (customSchedule === 'date_range') scheduleText = `Período (${scheduleDetails})`;
+
+    setData(prev => {
+      const updatedMasterTasks = prev.masterTasks.map(mt => {
+        if (mt.id === masterTaskId) {
+          const currentAssigned = mt.assignedChildren || [];
+          const filtered = currentAssigned.filter(ac => (ac.childId || ac) !== childId);
+          return {
+            ...mt,
+            assignedChildren: [...filtered, { childId, scheduleType: customSchedule, scheduleText }]
+          };
+        }
+        return mt;
+      });
+
+      return {
+        ...prev,
+        masterTasks: updatedMasterTasks
+      };
+    });
 
     addQuickTaskToChildDay(childId, {
       title: masterTask.title,
       points: masterTask.defaultPoints,
       approvalMode: masterTask.defaultApprovalMode,
       iconSvg: masterTask.iconSvg,
-      note: masterTask.description
+      note: masterTask.description,
+      masterTaskId: masterTask.id
     });
+  };
+
+  const unassignChildFromTask = (masterTaskId, childId) => {
+    setData(prev => ({
+      ...prev,
+      masterTasks: prev.masterTasks.map(mt => {
+        if (mt.id === masterTaskId) {
+          return {
+            ...mt,
+            assignedChildren: (mt.assignedChildren || []).filter(ac => (ac.childId || ac) !== childId)
+          };
+        }
+        return mt;
+      })
+    }));
   };
 
   // Master Tasks CRUD
@@ -445,7 +487,9 @@ export const AppProvider = ({ children }) => {
           defaultPoints: Number(taskData.defaultPoints) || 20,
           defaultApprovalMode: taskData.defaultApprovalMode || 'kid_request',
           iconSvg: taskData.iconSvg || '🎯',
-          category: taskData.category || 'Hogar'
+          category: taskData.category || 'Hogar',
+          description: taskData.description || '',
+          assignedChildren: []
         };
         return {
           ...prev,
@@ -465,9 +509,31 @@ export const AppProvider = ({ children }) => {
   // Master Routines CRUD
   const saveMasterRoutine = (routineData) => {
     setData(prev => {
+      // Ensure all tasks from the routine exist in masterTasks [REQ-LIB-010]
+      const existingTaskTitles = prev.masterTasks.map(mt => mt.title.toLowerCase().trim());
+      const newMasterTasksToAdd = [];
+      (routineData.tasks || []).forEach(rt => {
+        if (!existingTaskTitles.includes(rt.title.toLowerCase().trim())) {
+          existingTaskTitles.push(rt.title.toLowerCase().trim());
+          newMasterTasksToAdd.push({
+            id: rt.masterTaskId || `mt-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+            title: rt.title,
+            defaultPoints: rt.points || 15,
+            defaultApprovalMode: 'kid_request',
+            iconSvg: rt.iconSvg || '🎯',
+            category: 'Rutinas',
+            description: `Tarea creada para la rutina: ${routineData.title}`,
+            assignedChildren: []
+          });
+        }
+      });
+
+      const updatedMasterTasks = [...prev.masterTasks, ...newMasterTasksToAdd];
+
       if (routineData.id) {
         return {
           ...prev,
+          masterTasks: updatedMasterTasks,
           masterRoutines: prev.masterRoutines.map(r => r.id === routineData.id ? { ...r, ...routineData } : r)
         };
       } else {
@@ -481,6 +547,7 @@ export const AppProvider = ({ children }) => {
         };
         return {
           ...prev,
+          masterTasks: updatedMasterTasks,
           masterRoutines: [...prev.masterRoutines, newRoutine]
         };
       }
@@ -799,6 +866,7 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider
       value={{
         data,
+        setData,
         activeRole,
         setActiveRole,
         activeChildId,
@@ -832,6 +900,7 @@ export const AppProvider = ({ children }) => {
         checkDuplicatesForRoutine,
         injectRoutine,
         assignMasterTaskToChild,
+        unassignChildFromTask,
         saveMasterTask,
         deleteMasterTask,
         saveMasterRoutine,

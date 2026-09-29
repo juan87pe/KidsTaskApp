@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from '../Common/Modal';
 import { ChunkyButton } from '../Common/ChunkyButton';
 import { useApp } from '../../context/AppContext';
 import { Zap, Check, AlertTriangle } from 'lucide-react';
 
-export const InjectRoutineModal = ({ isOpen, onClose, targetChildId, onTriggerDuplicateModal }) => {
+export const InjectRoutineModal = ({ isOpen, onClose, targetChildId, onTriggerDuplicateModal, initialRoutineId }) => {
   const { data, checkDuplicatesForRoutine, injectRoutine } = useApp();
-  const [selectedRoutineId, setSelectedRoutineId] = useState(data.masterRoutines[0]?.id || '');
+  const [selectedRoutineId, setSelectedRoutineId] = useState(initialRoutineId || data.masterRoutines[0]?.id || '');
   const [selectedChildId, setSelectedChildId] = useState(targetChildId || data.children[0]?.id || 'child-mateo');
+
+  useEffect(() => {
+    if (initialRoutineId) setSelectedRoutineId(initialRoutineId);
+    if (targetChildId) setSelectedChildId(targetChildId);
+  }, [initialRoutineId, targetChildId, isOpen]);
 
   if (!isOpen) return null;
 

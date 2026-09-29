@@ -24,7 +24,7 @@ export const DuplicateDetectionModal = ({
           <p className="font-bold mb-1">Las siguientes tareas ya existen en la jornada:</p>
           <ul className="list-disc pl-5 space-y-0.5 font-semibold text-slate-700">
             {duplicates.map((d, i) => (
-              <li key={i}>{d.title} (+{d.points} pts)</li>
+              <li key={i}>{d.title} ya existe para hoy (+{d.points} pts)</li>
             ))}
           </ul>
         </div>
@@ -39,7 +39,7 @@ export const DuplicateDetectionModal = ({
             className="w-full p-3 rounded-squircle-md bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold text-xs text-left hover:bg-emerald-100 flex items-center justify-between transition"
           >
             <div>
-              <span className="block font-extrabold text-sm">🔘 Omitir duplicados (Recomendado)</span>
+              <span className="block font-extrabold text-sm">🔘 Omitir duplicado (Recomendado)</span>
               <span className="text-[11px] font-normal text-emerald-700">Solo asigna las tareas nuevas sin inflar puntos.</span>
             </div>
             <Check size={18} className="text-emerald-600" />

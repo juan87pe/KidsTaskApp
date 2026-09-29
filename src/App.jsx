@@ -75,6 +75,7 @@ export const App = () => {
 
   const [isInjectRoutineOpen, setIsInjectRoutineOpen] = useState(false);
   const [injectRoutineChildId, setInjectRoutineChildId] = useState(null);
+  const [injectRoutineId, setInjectRoutineId] = useState(null);
 
   const [isAssignMasterOpen, setIsAssignMasterOpen] = useState(false);
   const [assignMasterTask, setAssignMasterTask] = useState(null);
@@ -241,6 +242,7 @@ export const App = () => {
             }}
             onOpenInjectRoutine={(childId) => {
               setInjectRoutineChildId(childId);
+              setInjectRoutineId(null);
               setIsInjectRoutineOpen(true);
             }}
             onOpenAssignMaster={(childId) => {
@@ -264,6 +266,7 @@ export const App = () => {
             }}
             onInjectRoutineToChild={(routine) => {
               setInjectRoutineChildId(controlChild.id);
+              setInjectRoutineId(routine.id);
               setIsInjectRoutineOpen(true);
             }}
           />
@@ -410,6 +413,7 @@ export const App = () => {
         isOpen={isInjectRoutineOpen}
         onClose={() => setIsInjectRoutineOpen(false)}
         targetChildId={injectRoutineChildId || controlChild.id}
+        initialRoutineId={injectRoutineId}
         onTriggerDuplicateModal={(childId, routineId, dups) => {
           setDuplicateContext({ childId, routineId, duplicates: dups });
           setIsDuplicateModalOpen(true);

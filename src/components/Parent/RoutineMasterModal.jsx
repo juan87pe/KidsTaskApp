@@ -10,6 +10,8 @@ export const RoutineMasterModal = ({ isOpen, onClose, initialRoutine = null }) =
   const [description, setDescription] = useState(initialRoutine?.description || '');
   const [icon, setIcon] = useState(initialRoutine?.icon || '🌅');
   const [tasks, setTasks] = useState(initialRoutine?.tasks || []);
+  const [newCustomTaskTitle, setNewCustomTaskTitle] = useState('');
+  const [newCustomTaskPoints, setNewCustomTaskPoints] = useState(15);
 
   if (!isOpen) return null;
 
@@ -41,6 +43,18 @@ export const RoutineMasterModal = ({ isOpen, onClose, initialRoutine = null }) =
     copy[idx] = copy[targetIdx];
     copy[targetIdx] = temp;
     setTasks(copy);
+  };
+
+  const handleAddCustomTask = () => {
+    if (!newCustomTaskTitle.trim()) return;
+    const newTask = {
+      title: newCustomTaskTitle.trim(),
+      points: Number(newCustomTaskPoints) || 15,
+      iconSvg: '✨',
+      orderIndex: tasks.length + 1
+    };
+    setTasks([...tasks, newTask]);
+    setNewCustomTaskTitle('');
   };
 
   const handleSubmit = (e) => {
@@ -185,6 +199,37 @@ export const RoutineMasterModal = ({ isOpen, onClose, initialRoutine = null }) =
                 <Plus size={12} />
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Crear nueva tarea al vuelo [REQ-LIB-003] [REQ-LIB-010] */}
+        <div className="pt-2 border-t border-slate-200">
+          <label className="block text-xs font-extrabold text-[#1E3A5F] mb-1.5 uppercase">
+            O crear nueva tarea al vuelo:
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newCustomTaskTitle}
+              onChange={(e) => setNewCustomTaskTitle(e.target.value)}
+              placeholder="Nueva tarea para esta rutina..."
+              className="flex-1 p-2 rounded-squircle-sm bg-white border border-slate-200 text-xs font-medium text-slate-700 focus:outline-none"
+            />
+            <input
+              type="number"
+              min={1}
+              value={newCustomTaskPoints}
+              onChange={(e) => setNewCustomTaskPoints(e.target.value)}
+              className="w-16 p-2 rounded-squircle-sm bg-white border border-slate-200 text-xs font-bold text-amber-800 text-center focus:outline-none"
+              title="Puntos"
+            />
+            <button
+              type="button"
+              onClick={handleAddCustomTask}
+              className="px-3 py-1.5 rounded-squircle-sm bg-amber-400 text-amber-950 font-bold text-xs hover:bg-amber-500 transition flex items-center gap-1"
+            >
+              <Plus size={14} /> Añadir
+            </button>
           </div>
         </div>
 
