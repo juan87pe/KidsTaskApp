@@ -82,6 +82,19 @@ export const AppProvider = ({ children }) => {
     return false;
   };
 
+  const resetMasterPinAndUnlock = (newPin) => {
+    setData(prev => ({
+      ...prev,
+      family: { ...prev.family, masterPin: newPin }
+    }));
+    setIsPinModalOpen(false);
+    setActiveRole('parent');
+    if (pinCallbackTarget) {
+      setActiveParentTab(pinCallbackTarget);
+    }
+    return true;
+  };
+
   const logoutToProfileSelect = () => {
     setActiveRole('profile_select');
   };
@@ -761,6 +774,7 @@ export const AppProvider = ({ children }) => {
         selectKidProfile,
         openParentGate,
         verifyPin,
+        resetMasterPinAndUnlock,
         logoutToProfileSelect,
         markTaskAsRequestedByKid,
         approveTask,

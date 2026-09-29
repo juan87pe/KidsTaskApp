@@ -79,7 +79,8 @@ export const ProfileSelector = () => {
           
           <GlassCard
             variant="slate"
-            className="flex items-center justify-between p-4 bg-[#1E3A5F] border-2 border-[#2D4B73]"
+            onClick={() => openParentGate('parent_dash')}
+            className="flex items-center justify-between p-4 bg-[#1E3A5F] border-2 border-[#2D4B73] cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-squircle-md bg-white/10 border border-white/20 flex items-center justify-center text-white">
@@ -98,7 +99,7 @@ export const ProfileSelector = () => {
             <ChunkyButton
               variant="sky"
               size="sm"
-              onClick={() => openParentGate('parent_dash')}
+              onClick={(e) => { e.stopPropagation(); openParentGate('parent_dash'); }}
               className="whitespace-nowrap font-bold"
             >
               Ingresar con PIN

@@ -19,10 +19,10 @@
 
 ## 2. Checklist de Tareas Atómicas
 
-- [ ] `TASK-AUTH-01`: Definir esquema y estructura inicial de `family`, `children` y `tutors` en `initialData.js`.
-- [ ] `TASK-AUTH-02`: Implementar `ProfileSelector.jsx` con soporte para selección de niños y apertura de modal PIN.
-- [ ] `TASK-AUTH-03`: Desarrollar `PinGateModal.jsx` con teclado táctil virtual, feedback de error y validación de 4 dígitos.
-- [ ] `TASK-AUTH-04`: Integrar selector y conmutador de roles en `AppContext.jsx` (`selectRole`, `selectChild`, `validatePin`).
-- [ ] `TASK-AUTH-05`: Implementar `HouseholdSettings.jsx` para gestión de hijos, tutores y reglas de acumulación.
-- [ ] `TASK-AUTH-06`: Desarrollar `AddChildModal.jsx` y `AddTutorModal.jsx` con persistencia en el estado global.
-- [ ] `TASK-AUTH-07`: Añadir suite de pruebas unitarias y de integración para flujo de autenticación y PIN.
+- [x] `TASK-AUTH-01`: Definir esquema y estructura inicial de `family`, `children` y `tutors` en `initialData.js`.
+- [x] `TASK-AUTH-02`: Implementar `ProfileSelector.jsx` con soporte para selección de niños y apertura de modal PIN.
+- [x] `TASK-AUTH-03`: Desarrollar `PinGateModal.jsx` con teclado táctil virtual, feedback de error y validación de 4 dígitos.
+- [x] `TASK-AUTH-04`: Integrar selector y conmutador de roles en `AppContext.jsx` (`selectRole`, `selectChild`, `validatePin`).
+- [x] `TASK-AUTH-05`: Implementar `HouseholdSettings.jsx` para gestión de hijos, tutores y reglas de acumulación.
+- [x] `TASK-AUTH-06`: Desarrollar `AddChildModal.jsx` y `AddTutorModal.jsx` con persistencia en el estado global.
+- [x] `TASK-AUTH-07`: Añadir suite de pruebas unitarias y de integración para flujo de autenticación y PIN.
