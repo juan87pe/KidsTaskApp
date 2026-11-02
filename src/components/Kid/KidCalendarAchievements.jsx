@@ -5,12 +5,13 @@ import { GlassCard } from '../Common/GlassCard';
 
 export const KidCalendarAchievements = () => {
   const { data, activeChild } = useApp();
-  const [selectedDate, setSelectedDate] = useState('2026-08-25');
+  const history = data.calendarHistory || {};
+  const availableDates = Object.keys(history).sort().reverse();
+  const daysList = availableDates.length > 0 ? availableDates : ['2026-08-25', '2026-08-24', '2026-08-23'];
 
-  const history = data.calendarHistory;
-  const daysList = ['2026-08-25', '2026-08-24', '2026-08-23'];
+  const [selectedDate, setSelectedDate] = useState(daysList[0]);
 
-  const dayDetail = history[selectedDate]?.[activeChild.id];
+  const dayDetail = history[selectedDate]?.[activeChild?.id];
 
   return (
     <div className="space-y-5 max-w-md mx-auto pb-24 select-none">

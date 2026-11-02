@@ -790,19 +790,38 @@ export const AppProvider = ({ children }) => {
       if (!dayData) return prev;
 
       let pointChange = 0;
-      const updatedTasks = dayData.tasks.map(t => {
+      let targetTask = null;
+      let wasApproved = false;
+
+      const updatedTasks = (dayData.tasks || []).map(t => {
         if (t.id === taskId) {
-          const isApproved = t.status === 'approved';
-          pointChange = isApproved ? -t.points : t.points;
+          targetTask = t;
+          wasApproved = t.status === 'approved';
+          pointChange = wasApproved ? -t.points : t.points;
           return {
             ...t,
-            status: isApproved ? 'missed' : 'approved',
+            status: wasApproved ? 'missed' : 'approved',
             isRetroactivelyModified: true,
-            approvedBy: isApproved ? null : activeTutor.name
+            approvedBy: wasApproved ? null : (activeTutor?.name || 'Papás')
           };
         }
         return t;
       });
+
+      if (!targetTask) return prev;
+
+      // Recalculate day status (full / partial / missed)
+      const allApproved = updatedTasks.every(t => t.status === 'approved');
+      const anyApproved = updatedTasks.some(t => t.status === 'approved');
+      const hasPenalties = (dayData.penalties || 0) > 0;
+      let newStatus = 'missed';
+      if (allApproved && !hasPenalties && updatedTasks.length > 0) {
+        newStatus = 'full';
+      } else if (anyApproved && !hasPenalties) {
+        newStatus = 'partial';
+      } else {
+        newStatus = 'missed';
+      }
 
       const updatedChild = prev.children.map(c => {
         if (c.id === childId) {
@@ -811,22 +830,49 @@ export const AppProvider = ({ children }) => {
         return c;
       });
 
+      const todayStr = new Date().toISOString().split('T')[0];
+      const newTx = {
+        id: `tx-retro-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        familyId: prev.family?.id || 'fam-1',
+        childId,
+        type: wasApproved ? 'audit_revoke' : 'retroactive_task_reward',
+        points: pointChange,
+        reason: wasApproved
+          ? `Revocación retroactiva de tarea: ${targetTask.title} (${dateStr})`
+          : `Validación retroactiva de tarea: ${targetTask.title} (${dateStr})`,
+        date: todayStr,
+        timestamp: new Date().toISOString(),
+        actor: activeTutor?.name || 'Papás',
+        isReversed: false
+      };
+
       return {
         ...prev,
         children: updatedChild,
+        transactions: [...(prev.transactions || []), newTx],
         calendarHistory: {
           ...prev.calendarHistory,
           [dateStr]: {
             ...prev.calendarHistory[dateStr],
             [childId]: {
               ...dayData,
+              status: newStatus,
               tasks: updatedTasks,
-              netPoints: dayData.netPoints + pointChange
+              netPoints: (dayData.netPoints || 0) + pointChange
             }
           }
         }
       };
     });
+  };
+
+  // Dedicated aliases for retroactive operations
+  const retroactiveValidateTask = (taskId, childId, dateStr) => {
+    modifyPastTaskValidation(dateStr, childId, taskId);
+  };
+
+  const retroactiveRevokeTask = (taskId, childId, dateStr) => {
+    modifyPastTaskValidation(dateStr, childId, taskId);
   };
 
   // Reversal / Refund of past redemption
@@ -836,13 +882,17 @@ export const AppProvider = ({ children }) => {
       if (!dayData) return prev;
 
       let refundPoints = 0;
+      let targetRedemption = null;
       const updatedRedemptions = (dayData.redemptions || []).map(r => {
         if (r.id === redemptionId) {
+          targetRedemption = r;
           refundPoints = r.pointsCost;
           return { ...r, isRefunded: true };
         }
         return r;
       });
+
+      if (!targetRedemption) return prev;
 
       const updatedChild = prev.children.map(c => {
         if (c.id === childId) {
@@ -851,9 +901,24 @@ export const AppProvider = ({ children }) => {
         return c;
       });
 
+      const todayStr = new Date().toISOString().split('T')[0];
+      const refundTx = {
+        id: `tx-refund-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        familyId: prev.family?.id || 'fam-1',
+        childId,
+        type: 'refund_reversal',
+        points: refundPoints,
+        reason: `Reembolso de canje: ${targetRedemption.rewardTitle} (${dateStr})`,
+        date: todayStr,
+        timestamp: new Date().toISOString(),
+        actor: activeTutor?.name || 'Papás',
+        isReversed: false
+      };
+
       return {
         ...prev,
         children: updatedChild,
+        transactions: [...(prev.transactions || []), refundTx],
         calendarHistory: {
           ...prev.calendarHistory,
           [dateStr]: {
@@ -866,6 +931,10 @@ export const AppProvider = ({ children }) => {
         }
       };
     });
+  };
+
+  const refundRedemption = (redemptionId, childId, dateStr) => {
+    refundPastRedemption(dateStr, childId, redemptionId);
   };
 
   // ----------------------------------------------------
@@ -1014,6 +1083,9 @@ export const AppProvider = ({ children }) => {
         toggleRewardLock,
         modifyPastTaskValidation,
         refundPastRedemption,
+        retroactiveValidateTask,
+        retroactiveRevokeTask,
+        refundRedemption,
         applyQuickPoints,
         saveChild,
         deleteChild,

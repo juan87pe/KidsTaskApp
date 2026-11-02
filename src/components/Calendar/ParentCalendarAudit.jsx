@@ -13,10 +13,11 @@ export const ParentCalendarAudit = () => {
     refundPastRedemption
   } = useApp();
 
-  const [selectedDate, setSelectedDate] = useState('2026-08-25');
+  const history = data.calendarHistory || {};
+  const availableDates = Object.keys(history).sort().reverse();
+  const daysList = availableDates.length > 0 ? availableDates : ['2026-08-25', '2026-08-24', '2026-08-23'];
 
-  const history = data.calendarHistory;
-  const daysList = ['2026-08-25', '2026-08-24', '2026-08-23'];
+  const [selectedDate, setSelectedDate] = useState(daysList[0]);
 
   const targetChild = data.children.find(c => c.id === activeChildControlId) || data.children[0];
   const dayData = history[selectedDate]?.[targetChild.id];
@@ -178,7 +179,7 @@ export const ParentCalendarAudit = () => {
                   title="Cambiar estado de aprobación y recalcular puntos"
                 >
                   <RefreshCw size={13} />
-                  <span>{isApproved ? 'Desmarcar / Revocar (-' + task.points + ')' : 'Validar Ahora (+' + task.points + ')'}</span>
+                  <span>{isApproved ? 'Modificar Validación / Desmarcar (-' + task.points + ')' : 'Validar como Realizada Ahora (+' + task.points + ')'}</span>
                 </button>
               </div>
             );
