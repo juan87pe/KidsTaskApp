@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, AlertTriangle, Sparkles } from 'lucide-react';
 import { Modal } from '../Common/Modal';
 import { ChunkyButton } from '../Common/ChunkyButton';
@@ -11,12 +11,18 @@ export const QuickPointsModal = ({ isOpen, onClose, initialIsBonus = true }) => 
   const [points, setPoints] = useState(10);
   const [reason, setReason] = useState('');
 
+  useEffect(() => {
+    setIsBonus(initialIsBonus);
+    setPoints(10);
+    setReason('');
+  }, [initialIsBonus, isOpen]);
+
   if (!isOpen) return null;
 
   const quickPills = isBonus ? [5, 10, 15, 20, 50] : [5, 10, 15, 20];
   const commonReasons = isBonus
-    ? ['Excelente actitud', 'Ayudar sin que se lo pidan', 'Comportamiento ejemplar', 'Compartir con hermano']
-    : ['No hacer caso tras 3 avisos', 'Discusión / Falta de respeto', 'No recoger juguetes', 'Uso excesivo de pantallas'];
+    ? ['Ayudar a su hermana', 'Excelente actitud', 'Ayudar sin que se lo pidan', 'Comportamiento ejemplar', 'Compartir con hermano']
+    : ['No ordenar tras jugar', 'No hacer caso tras 3 avisos', 'Discusión / Falta de respeto', 'No recoger juguetes', 'Uso excesivo de pantallas'];
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -42,7 +48,7 @@ export const QuickPointsModal = ({ isOpen, onClose, initialIsBonus = true }) => 
               isBonus ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-600'
             }`}
           >
-            🌟 Bono Positivo (+)
+            🌟 Otorgar Bono
           </button>
           <button
             type="button"
@@ -51,7 +57,7 @@ export const QuickPointsModal = ({ isOpen, onClose, initialIsBonus = true }) => 
               !isBonus ? 'bg-rose-500 text-white shadow-sm' : 'text-slate-600'
             }`}
           >
-            ⚠️ Sanción (-)
+            ⚠️ Aplicar Sanción
           </button>
         </div>
 
@@ -98,7 +104,7 @@ export const QuickPointsModal = ({ isOpen, onClose, initialIsBonus = true }) => 
                     : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                {isBonus ? `+${p}` : `-${p}`}
+                {isBonus ? `+${p} ⭐` : `-${p} ⭐`}
               </button>
             ))}
           </div>
@@ -145,7 +151,7 @@ export const QuickPointsModal = ({ isOpen, onClose, initialIsBonus = true }) => 
             type="submit"
             className="text-xs font-bold"
           >
-            {isBonus ? `Otorgar +${points} ⭐` : `Aplicar Sanción -${points}`}
+            {isBonus ? 'Confirmar Bono' : 'Confirmar Sanción'}
           </ChunkyButton>
         </div>
 

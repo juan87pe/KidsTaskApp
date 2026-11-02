@@ -938,26 +938,112 @@ export const AppProvider = ({ children }) => {
   };
 
   // ----------------------------------------------------
-  // QUICK POINTS (BONUSES & PENALTIES)
+  // QUICK POINTS (BONUSES & PENALTIES) & GAMIFICATION
   // ----------------------------------------------------
+  const calculateLevel = (totalPoints) => {
+    if (totalPoints >= 1000) return 'Nivel 5 • Maestro Legendario';
+    if (totalPoints >= 500) return 'Nivel 4 • Campeón';
+    if (totalPoints >= 250) return 'Nivel 3 • Aventurero';
+    if (totalPoints >= 100) return 'Nivel 2 • Explorador';
+    return 'Nivel 1 • Principiante';
+  };
+
   const applyQuickPoints = (childId, points, reason, isBonus = true) => {
     const delta = isBonus ? Math.abs(points) : -Math.abs(points);
+    const todayStr = new Date().toISOString().split('T')[0];
 
     setData(prev => {
+      const newTx = {
+        id: `tx-quick-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        familyId: prev.family?.id || 'fam-1',
+        childId,
+        type: isBonus ? 'bonus' : 'penalty',
+        points: delta,
+        reason: reason || (isBonus ? 'Bono especial' : 'Sanción rápida'),
+        date: todayStr,
+        timestamp: new Date().toISOString(),
+        actor: activeTutor?.name || 'Papás',
+        isReversed: false
+      };
+
       const updatedChildren = prev.children.map(c => {
         if (c.id === childId) {
-          return { ...c, currentPoints: Math.max(0, c.currentPoints + delta) };
+          const newCurrent = Math.max(0, c.currentPoints + delta);
+          const newTotal = (c.totalPointsEarned ?? c.currentPoints) + (isBonus ? delta : 0);
+          return {
+            ...c,
+            currentPoints: newCurrent,
+            totalPointsEarned: newTotal,
+            level: calculateLevel(newTotal)
+          };
         }
         return c;
       });
 
       return {
         ...prev,
-        children: updatedChildren
+        children: updatedChildren,
+        transactions: [...(prev.transactions || []), newTx]
       };
     });
 
     if (isBonus) triggerConfetti();
+  };
+
+  const addBonusOrPenalty = (childId, points, reason, type) => {
+    applyQuickPoints(childId, points, reason, type === 'bonus');
+  };
+
+  // Rutina de Cierre de Jornada y Auto-Liquidación (23:59:59)
+  const executeDailyReset = (dateStr = new Date().toISOString().split('T')[0]) => {
+    setData(prev => {
+      const family = prev.family || {};
+      const isDailyReset = family.pointsRule === 'daily_reset';
+      const isWeeklyReset = family.pointsRule === 'weekly_reset';
+      if (!isDailyReset && !isWeeklyReset) return prev;
+
+      const autoLiq = family.autoLiquidation;
+      const newTransactions = [];
+      const updatedChildren = prev.children.map(child => {
+        if (child.currentPoints <= 0) return child;
+
+        const pointsToLiquidate = child.currentPoints;
+
+        if (autoLiq?.enabled) {
+          let reason = '';
+          if (autoLiq.rewardType === 'money_allowance') {
+            const moneyAmount = (pointsToLiquidate * (autoLiq.conversionRate || 0.1)).toFixed(2);
+            reason = `Auto-canje por cierre de jornada: ${pointsToLiquidate} pts = ${autoLiq.currencySymbol || '$'}${moneyAmount}`;
+          } else {
+            reason = `Auto-canje por cierre de jornada: ${pointsToLiquidate} pts -> Premio: ${autoLiq.customRewardTitle || 'Premio automático'}`;
+          }
+
+          newTransactions.push({
+            id: `tx-autoliq-${Date.now()}-${child.id}-${Math.random().toString(36).substr(2, 4)}`,
+            familyId: family.id || 'fam-1',
+            childId: child.id,
+            type: 'reward_redemption',
+            points: -pointsToLiquidate,
+            reason,
+            date: dateStr,
+            timestamp: new Date().toISOString(),
+            actor: 'Sistema (Cierre Diario)',
+            isReversed: false
+          });
+        }
+
+        return {
+          ...child,
+          currentPoints: 0
+        };
+      });
+
+      return {
+        ...prev,
+        children: updatedChildren,
+        transactions: [...(prev.transactions || []), ...newTransactions]
+      };
+    });
   };
 
   // ----------------------------------------------------
@@ -1087,6 +1173,9 @@ export const AppProvider = ({ children }) => {
         retroactiveRevokeTask,
         refundRedemption,
         applyQuickPoints,
+        addBonusOrPenalty,
+        executeDailyReset,
+        processEndOfDay: executeDailyReset,
         saveChild,
         deleteChild,
         saveTutor,

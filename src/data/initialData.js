@@ -3,7 +3,15 @@ export const INITIAL_DATA = {
     id: 'fam-rodriguez',
     name: 'Familia Rodríguez',
     masterPin: '1234',
-    pointsRule: 'cumulative', // 'cumulative' | 'daily_reset' | 'weekly_reset'
+    pointsRule: 'continuous', // 'continuous' (cumulative) | 'daily_reset' | 'weekly_reset'
+    autoLiquidation: {
+      enabled: false,
+      rewardType: 'money_allowance',
+      conversionRate: 0.10,
+      currencySymbol: '$',
+      customRewardTitle: '',
+      customRewardId: null
+    },
     activeTutorId: 'tutor-1'
   },
   tutors: [

@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { Users, Shield, Key, Plus, Trash2, Edit2, RotateCcw, Check, Sparkles } from 'lucide-react';
 import { GlassCard } from '../Common/GlassCard';
 import { ChunkyButton } from '../Common/ChunkyButton';
+import { AutoLiquidationModal } from './AutoLiquidationModal';
 
 export const HouseholdSettings = ({ onOpenAddChild, onOpenAddTutor }) => {
   const {
@@ -15,6 +16,8 @@ export const HouseholdSettings = ({ onOpenAddChild, onOpenAddTutor }) => {
 
   const [pinInput, setPinInput] = useState(data.family.masterPin);
   const [pinSavedMessage, setPinSavedMessage] = useState(false);
+  const [isAutoLiqModalOpen, setIsAutoLiqModalOpen] = useState(false);
+  const [pendingRule, setPendingRule] = useState('daily_reset');
 
   const handleSavePin = (e) => {
     e.preventDefault();
@@ -26,7 +29,26 @@ export const HouseholdSettings = ({ onOpenAddChild, onOpenAddTutor }) => {
   };
 
   const handleRuleChange = (rule) => {
-    updateFamilySettings({ pointsRule: rule });
+    if (rule === 'daily_reset' || rule === 'weekly_reset') {
+      setPendingRule(rule);
+      setIsAutoLiqModalOpen(true);
+    } else {
+      updateFamilySettings({
+        pointsRule: 'continuous',
+        autoLiquidation: {
+          ...(data.family?.autoLiquidation || {}),
+          enabled: false
+        }
+      });
+    }
+  };
+
+  const handleSaveAutoLiquidation = (autoLiqConfig) => {
+    updateFamilySettings({
+      pointsRule: pendingRule,
+      autoLiquidation: autoLiqConfig
+    });
+    setIsAutoLiqModalOpen(false);
   };
 
   return (
@@ -161,7 +183,7 @@ export const HouseholdSettings = ({ onOpenAddChild, onOpenAddTutor }) => {
         <div className="space-y-2">
           {[
             {
-              id: 'cumulative',
+              id: 'continuous',
               title: '⭐ Modo Acumulativo Continuo (Recomendado)',
               desc: 'Los puntos nunca caducan; se guardan día a día para canjear premios mayores.'
             },
@@ -175,28 +197,65 @@ export const HouseholdSettings = ({ onOpenAddChild, onOpenAddTutor }) => {
               title: '📅 Modo Reinicio Semanal',
               desc: 'Se reinician los domingos a medianoche para empezar cada lunes desde cero.'
             }
-          ].map(opt => (
-            <button
-              key={opt.id}
-              type="button"
-              onClick={() => handleRuleChange(opt.id)}
-              className={`w-full p-3.5 rounded-squircle-sm border-2 text-left transition flex items-center justify-between ${
-                data.family.pointsRule === opt.id
-                  ? 'border-[#1E3A5F] bg-blue-50/50 text-[#1E3A5F] shadow-sm'
-                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              <div>
-                <span className="font-extrabold text-xs block">{opt.title}</span>
-                <span className="text-[11px] font-medium text-slate-500 mt-0.5 block">{opt.desc}</span>
-              </div>
-              {data.family.pointsRule === opt.id && (
-                <Check size={18} className="text-sky-600 shrink-0" />
-              )}
-            </button>
-          ))}
+          ].map(opt => {
+            const isSelected = data.family.pointsRule === opt.id || (opt.id === 'continuous' && data.family.pointsRule === 'cumulative');
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => handleRuleChange(opt.id)}
+                className={`w-full p-3.5 rounded-squircle-sm border-2 text-left transition flex items-center justify-between ${
+                  isSelected
+                    ? 'border-[#1E3A5F] bg-blue-50/50 text-[#1E3A5F] shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <div>
+                  <span className="font-extrabold text-xs block">{opt.title}</span>
+                  <span className="text-[11px] font-medium text-slate-500 mt-0.5 block">{opt.desc}</span>
+                </div>
+                {isSelected && (
+                  <Check size={18} className="text-sky-600 shrink-0" />
+                )}
+              </button>
+            );
+          })}
         </div>
+
+        {/* Indicador de Auto-Liquidación activa */}
+        {data.family.autoLiquidation?.enabled && (
+          <div className="mt-3 p-3 rounded-squircle-sm bg-purple-50 border border-purple-200 flex items-center justify-between">
+            <div className="text-xs">
+              <span className="font-bold text-purple-900 block">💡 Auto-liquidación activa al cierre:</span>
+              <span className="text-purple-700 font-semibold">
+                {data.family.autoLiquidation.rewardType === 'money_allowance'
+                  ? `Dinero / Paga (${data.family.autoLiquidation.conversionRate} ${data.family.autoLiquidation.currencySymbol || '$'} por punto)`
+                  : `Premio: ${data.family.autoLiquidation.customRewardTitle || 'Premio del catálogo'}`}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setPendingRule(data.family.pointsRule || 'daily_reset');
+                setIsAutoLiqModalOpen(true);
+              }}
+              className="text-xs font-bold text-purple-800 underline hover:text-purple-950"
+            >
+              Configurar
+            </button>
+          </div>
+        )}
       </GlassCard>
+
+      {/* Modal Asistente de Auto-Liquidación */}
+      <AutoLiquidationModal
+        isOpen={isAutoLiqModalOpen}
+        onClose={() => setIsAutoLiqModalOpen(false)}
+        initialConfig={data.family?.autoLiquidation}
+        targetRule={pendingRule}
+        onSave={handleSaveAutoLiquidation}
+        rewards={data.rewards || []}
+      />
 
       {/* 4. PIN Maestro de Seguridad */}
       <GlassCard className="p-5 border-2 border-slate-200">

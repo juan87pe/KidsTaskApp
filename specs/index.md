@@ -90,6 +90,6 @@ specs/
 | `[REQ-GAM-004]` | Política de canje diario obligatorio | `06-gamification-and-rules` | `ADR-0002` | Escenario: Canje diario obligatorio | `HouseholdSettings.jsx` |
 | `[REQ-GAM-005]` | Política de reinicio semanal | `06-gamification-and-rules` | `ADR-0002` | Escenario: Reinicio semanal | `HouseholdSettings.jsx` |
 | `[REQ-GAM-006]` | Nivel gamificado del niño | `06-gamification-and-rules` | `ADR-0002` | Escenario: Cálculo de nivel | `KidDashboard.jsx` |
-| `[REQ-GAM-007]` | Configuración de auto-liquidación diaria | `06-gamification-and-rules` | `ADR-0002` | Escenario: Configuración de auto-liquidación | `HouseholdSettings.jsx`, `AppContext.jsx` |
+| `[REQ-GAM-007]` | Configuración de auto-liquidación diaria | `06-gamification-and-rules` | `ADR-0002` | Escenario: Configuración de auto-liquidación | `HouseholdSettings.jsx`, `AutoLiquidationModal.jsx`, `AppContext.jsx` |
 | `[REQ-GAM-008]` | Ejecución de auto-canje a las 23:59:59 | `06-gamification-and-rules` | `ADR-0002` | Escenario: Ejecución de auto-canje | `AppContext.jsx` |
 
