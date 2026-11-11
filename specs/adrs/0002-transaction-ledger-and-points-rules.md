@@ -26,11 +26,14 @@ Se adopta un **Patrón de Ledger Contable Basado en Eventos Inmutables (`Transac
    - `actor`: Tutor que autorizó o ejecutó la acción.
    - `isReversed`: Booleano para indicar si la transacción fue revertida formalmente.
 2. El saldo actual de un niño (`currentPoints`) se calcula o sincroniza garantizando que la suma de sus transacciones no revertidas coincida exactamente con el saldo disponible.
-3. Se soportan 3 **Modos de Acumulación**:
+3. **Cálculo de Nivel y Acumulado Histórico (`totalPointsEarned`):** El nivel gamificado del niño (`level`) se deriva de `totalPointsEarned`, el cual se incrementa con toda tarea aprobada (tanto en el día actual como por validación retroactiva) y bonos instantáneos, sin verse reducido por canjes ordinarios de premios.
+4. Se soportan 3 **Modos de Acumulación**:
    - `continuous` *(Por Defecto)*: Los puntos no caducan; se acumulan indefinidamente para premios grandes.
-   - `daily_reset`: Los puntos se reinician a 0 a las 23:59.
-   - `weekly_reset`: Los puntos se reinician los domingos a las 23:59.
-4. **Auto-Liquidación / Canje por Defecto de Puntos Sobrantes (`autoLiquidation`):** Al activar `daily_reset` o `weekly_reset`, el sistema solicita obligatoriamente si se desea canjear automáticamente los puntos no gastados al llegar las 23:59:59 (por ejemplo, convertirlos a dinero/paga semanal con tasa fija como `$0.10 por punto`, o canjearlos por un premio comodín), liquidando el saldo a 0 mediante una transacción legítima `reward_redemption` para que el esfuerzo del niño no se desvanezca en el vacío.
+   - `daily_reset`: Los puntos se reinician a 0 a las 23:59:59 de cada noche.
+   - `weekly_reset`: Los puntos se reinician exclusivamente los domingos a las 23:59:59.
+5. **Auto-Liquidación / Canje por Defecto de Puntos Sobrantes (`autoLiquidation`):** Al activar `daily_reset` o `weekly_reset`, el sistema solicita obligatoriamente si se desea canjear automáticamente los puntos no gastados al llegar el cierre de jornada correspondiente (por ejemplo, convertirlos a dinero/paga semanal con tasa fija como `$0.10 por punto`, o canjearlos por un premio comodín), liquidando el saldo a 0 mediante una transacción legítima `reward_redemption` para que el esfuerzo del niño no se desvanezca en el vacío.
+6. **Archivado de la Jornada en Historial (`calendarHistory`):** Al ejecutarse el cierre de jornada (`executeDailyReset`), las tareas de `todayAssignments` se consolidan en `calendarHistory[dateStr][childId]` pasando a estado `'missed'` las que no se hayan aprobado, junto con los bonos, sanciones y canjes de esa fecha, garantizando que el día actual se integre formalmente al histórico auditable.
+7. **Compensación Justa en Días Cerrados:** Si una tarea aprobada en un día pasado cerrado se revoca bajo políticas `daily_reset` o `weekly_reset`, solo se debitarán del saldo de hoy los puntos que efectivamente fueron consumidos (canjeados o auto-liquidados) durante esa fecha; los puntos que expiraron sin consumirse no afectarán el balance de la jornada actual.
 
 ---
 

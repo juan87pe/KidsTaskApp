@@ -56,7 +56,9 @@ export const App = () => {
     controlChild,
     data,
     logoutToProfileSelect,
-    injectRoutine
+    injectRoutine,
+    assignMasterTaskToChild,
+    addQuickTaskToChildDay
   } = useApp();
 
   // Global Modals State
@@ -384,11 +386,32 @@ export const App = () => {
         onClose={() => setIsDuplicateModalOpen(false)}
         duplicates={duplicateContext.duplicates}
         onConfirmOmit={() => {
-          injectRoutine(duplicateContext.childId, duplicateContext.routineId, false);
+          if (duplicateContext.isSingleTask) {
+            // Do not inject to today, but keep assignment rule if not today-only
+            if (duplicateContext.scheduleType && duplicateContext.scheduleType !== 'today') {
+              assignMasterTaskToChild(duplicateContext.childId, duplicateContext.taskId, duplicateContext.scheduleType, duplicateContext.scheduleDetails);
+            }
+          } else {
+            injectRoutine(duplicateContext.childId, duplicateContext.routineId, false);
+          }
           setIsDuplicateModalOpen(false);
         }}
         onConfirmAllowAll={() => {
-          injectRoutine(duplicateContext.childId, duplicateContext.routineId, true);
+          if (duplicateContext.isSingleTask) {
+            const masterTask = data.masterTasks.find(mt => mt.id === duplicateContext.taskId);
+            if (masterTask) {
+              addQuickTaskToChildDay(duplicateContext.childId, {
+                title: masterTask.title,
+                points: masterTask.defaultPoints,
+                approvalMode: masterTask.defaultApprovalMode,
+                iconSvg: masterTask.iconSvg,
+                note: masterTask.description,
+                masterTaskId: masterTask.id
+              });
+            }
+          } else {
+            injectRoutine(duplicateContext.childId, duplicateContext.routineId, true);
+          }
           setIsDuplicateModalOpen(false);
         }}
       />
@@ -425,6 +448,17 @@ export const App = () => {
         onClose={() => setIsAssignMasterOpen(false)}
         targetTask={assignMasterTask}
         targetChildId={assignMasterChildId || controlChild.id}
+        onTriggerDuplicateModal={(childId, task, scheduleType, details) => {
+          setDuplicateContext({
+            childId,
+            taskId: task.id,
+            isSingleTask: true,
+            scheduleType,
+            scheduleDetails: details,
+            duplicates: [{ title: task.title, points: task.defaultPoints }]
+          });
+          setIsDuplicateModalOpen(true);
+        }}
       />
 
       <AddChildModal

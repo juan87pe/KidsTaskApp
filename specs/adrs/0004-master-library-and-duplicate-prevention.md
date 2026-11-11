@@ -23,11 +23,14 @@ Se adopta un **Modelo de Catálogo Desacoplado con Motor de Programación Tempor
    - *Semanal (Días fijos `[L][M][X][J][V][S][D]`)*.
    - *Fecha específica (`YYYY-MM-DD`)*.
    - *Rango de fechas / Período (`fechaInicio` a `fechaFin`)*.
-4. **Visor de Asignaciones en Tiempo Real:** Al pulsar cualquier tarea o rutina de la biblioteca, se muestran los hijos que la tienen asignada, sus reglas de recurrencia y opciones de modificar/pausar.
-5. **Detector Inteligente de Duplicados (`DuplicateDetectionModal`):** Si una asignación coincide con una tarea activa del día para ese niño, se ofrece elegir entre:
-   - `Omitir duplicado (Recomendado)`: Evita sobrecargar la lista e inflar puntos.
-   - `Permitir como tarea adicional (x2)`: Registra la instancia como tarea extra deliberada.
-6. **Visibilidad Unificada de Tareas de Rutina en el Catálogo General:** Todas las tareas que integran una rutina también se muestran de forma accesible e independiente en el Catálogo General de Tareas Maestras (`masterTasks`), identificadas con una insignia que indica a qué rutina(s) pertenecen (ej. `[🏷️ Rutina Mañanera]`). Si un tutor crea una nueva tarea al vuelo dentro de una rutina, esta se registra automáticamente en el catálogo maestro, permitiendo su asignación y reutilización individual.
+4. **Visor de Asignaciones en Tiempo Real:** Al pulsar cualquier tarea o rutina de la biblioteca, se muestran los hijos que la tienen asignada, sus reglas de recurrencia (`scheduleType`, `scheduleDetails`, `scheduleText`) y opciones de modificar/pausar.
+5. **Evaluación de Vigencia Temporal (`shouldScheduleApplyOnDate`):** Al asignar una tarea maestra o inyectar una rutina, la regla se persiste en el catálogo maestro, pero la tarea **solo se inyecta en la lista del día actual (`todayAssignments`) si la regla de programación aplica efectivamente para la fecha de hoy**.
+6. **Detector Inteligente de Duplicados (`DuplicateDetectionModal`):** Si una asignación (individual o por rutina) coincide con una tarea activa del día para ese niño, se ofrece elegir entre:
+   - `Omitir duplicado (Recomendado)`: Evita sobrecargar la lista e inflar puntos; guarda la regla de asignación recurrente sin duplicar la tarjeta en la jornada de hoy.
+   - `Permitir como tarea adicional (x2)`: Registra la instancia como tarea extra deliberada con `instanceTag: 'instance_2'` y `masterTaskId`.
+7. **Expiración Dinámica de Pausas y Omisiones Temporales:** Las pausas temporales (`pause`) se evalúan dinámicamente comparando la fecha actual contra `pausedUntil` (reactivándose solas al vencer el lapso), y las omisiones de "solo por hoy" se registran vinculadas a la fecha activa (`skippedDate`), expirando automáticamente al iniciar el día siguiente.
+8. **Preservación de Metadatos y Normalización Secuencial de `orderIndex`:** Toda tarea inyectada o creada preserva su enlace `masterTaskId`. Al eliminar o reordenar tareas en la Ficha Diaria, el sistema normaliza la secuencia de `orderIndex` de forma continua (`1, 2, 3, ...`), evitando colisiones o índices corruptos.
+9. **Visibilidad Unificada de Tareas de Rutina en el Catálogo General:** Todas las tareas que integran una rutina también se muestran de forma accesible e independiente en el Catálogo General de Tareas Maestras (`masterTasks`), identificadas con una insignia que indica a qué rutina(s) pertenecen (ej. `[🏷️ Rutina Mañanera]`). Si un tutor crea una nueva tarea al vuelo dentro de una rutina, esta se registra automáticamente en el catálogo maestro, permitiendo su asignación y reutilización individual.
 
 ---
 

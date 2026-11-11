@@ -66,3 +66,20 @@ Y las tareas "Hacer la cama" y "Desayunar saludable" permanecen en estado "pendi
 Y el sistema permite al padre validar "Deberes Escolares" sin requerir que las anteriores hayan sido completadas.
 ```
 
+### Escenario: Normalización correlativa de orderIndex al eliminar tareas de la jornada [REQ-TASK-010]
+```gherkin
+Dado que Mateo tiene 4 tareas asignadas con orderIndex "1, 2, 3, 4"
+Cuando el padre elimina la tarea con orderIndex 2 desde la Ficha Diaria
+Entonces las tareas restantes se recalculan automáticamente con orderIndex "1, 2, 3" sin huecos
+Y al agregar una nueva tarea rápida, esta toma el orderIndex 4 sin generar colisiones numéricas.
+```
+
+### Escenario: Preservación de masterTaskId y progresión de nivel al aprobar [REQ-TASK-005] [REQ-TASK-012]
+```gherkin
+Dado que Mateo tiene asignada una tarea diaria proveniente de la plantilla maestra "mt-1"
+Cuando el padre aprueba dicha tarea
+Entonces la tarea conserva su propiedad "masterTaskId: mt-1"
+Y el total histórico "totalPointsEarned" de Mateo se incrementa con el valor de la tarea
+Y su nivel gamificado se recalcula automáticamente según la escala de experiencia.
+```
+

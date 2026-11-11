@@ -22,4 +22,6 @@
 - [x] `TASK-GAM-04`: Integrar persistencia y selector de políticas de reinicio (`continuous`, `daily_reset`, `weekly_reset`) en `HouseholdSettings.jsx`.
 - [x] `TASK-GAM-05`: Añadir pruebas automatizadas para la aplicación de bonos, sanciones y políticas de reinicio (`src/test/features/06-gamification-and-rules.test.jsx`).
 - [x] `TASK-GAM-06`: Desarrollar asistente modal de configuración de auto-liquidación de puntos al activar `daily_reset` (`AutoLiquidationModal.jsx`) e implementar la rutina de auto-canje a las 23:59:59 (`executeDailyReset`).
+- [x] `TASK-GAM-07`: Vincular el acumulado histórico `totalPointsEarned` y `calculateLevel` a toda aprobación o revocación de tareas (tanto en la jornada activa como en correcciones retroactivas).
+- [x] `TASK-GAM-08`: Integrar verificación estricta de día domingo para `weekly_reset` y archivado integral de `todayAssignments` hacia `calendarHistory` en `executeDailyReset`.
 

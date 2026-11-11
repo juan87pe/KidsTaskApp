@@ -93,3 +93,29 @@ Y cada una muestra una insignia visible indicando "[🏷️ Rutina Mañanera]"
 Y el padre puede pulsar "[ 🚀 Asignar Tarea ]" sobre cualquiera de ellas de forma individual e independiente de la rutina.
 ```
 
+### Escenario: Asignación de tarea para fecha futura no se inyecta en el día actual [REQ-LIB-005]
+```gherkin
+Dado que el padre abre "AssignMasterTaskModal" para la tarea "Regar las plantas"
+Y selecciona la modalidad "⚪ Fecha Específica" con una fecha futura
+Y confirma la asignación para Mateo
+Entonces la regla queda registrada en el visor de la biblioteca con sus metadatos
+Pero la tarea "Regar las plantas" no se añade a la lista de hoy "todayAssignments" de Mateo.
+```
+
+### Escenario: Detección preventiva de duplicado en asignación de tarea maestra individual [REQ-LIB-006]
+```gherkin
+Dado que Mateo ya tiene asignada la tarea "Hacer la cama" en su lista de hoy
+Cuando el padre intenta asignar "Hacer la cama" para hoy desde la biblioteca
+Entonces el sistema despliega el modal "DuplicateDetectionModal" alertando la duplicidad
+Cuando el padre selecciona "🔘 Omitir duplicado (Recomendado)"
+Entonces no se crea una segunda tarjeta idéntica en la jornada de hoy.
+```
+
+### Escenario: Expiración dinámica de pausa temporal [REQ-LIB-008]
+```gherkin
+Dado que una tarea fue pausada hasta una fecha ya vencida respecto a hoy
+Cuando el sistema evalúa la vigencia de asignación o se carga el visor de la biblioteca
+Entonces la tarea no figura como pausada
+Y queda habilitada para su ejecución automática en el día correspondiente.
+```
+

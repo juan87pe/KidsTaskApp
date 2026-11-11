@@ -210,4 +210,44 @@ describe('Feature 02: Gestión Diaria de Tareas y Aprobaciones (BDD Scenarios)',
     // Si la tarea parent_only está requested muestra el estado, si está pending muestra la etiqueta
     expect(parentOnlyBadges.length >= 0).toBe(true);
   });
+
+  it('Escenario 8: Eliminación de tarea y normalización secuencial de orden [REQ-TASK-012]', async () => {
+    let appContextValue;
+    const TestConsumer = () => {
+      appContextValue = useApp();
+      return (
+        <ChildDailyControlView
+          onOpenInjectRoutine={() => {}}
+          onOpenQuickTask={() => {}}
+          onOpenAssignMaster={() => {}}
+        />
+      );
+    };
+
+    render(
+      <AppProvider>
+        <TestConsumer />
+      </AppProvider>
+    );
+
+    // Obtener las tareas iniciales de Mateo
+    const initialMateoTasks = appContextValue.data.todayAssignments.filter(a => a.childId === 'child-mateo');
+    expect(initialMateoTasks.length).toBeGreaterThan(1);
+
+    // Encontrar el botón de eliminar de una de las tareas
+    const removeBtns = screen.getAllByTitle('Quitar de hoy');
+    expect(removeBtns.length).toBeGreaterThan(0);
+
+    // Eliminar la primera tarea
+    fireEvent.click(removeBtns[0]);
+
+    // Verificar que los orderIndex de las tareas restantes están estrictamente normalizados 1, 2, 3...
+    await waitFor(() => {
+      const remainingMateoTasks = appContextValue.data.todayAssignments.filter(a => a.childId === 'child-mateo');
+      expect(remainingMateoTasks.length).toBe(initialMateoTasks.length - 1);
+      remainingMateoTasks.forEach((task, idx) => {
+        expect(task.orderIndex).toBe(idx + 1);
+      });
+    });
+  });
 });

@@ -57,8 +57,9 @@ specs/
 | `[REQ-TASK-007]` | Tareas exclusivas de control parental | `02-daily-task-management` | `ADR-0001` | Escenario: Tareas solo padres | `KidDashboard.jsx`, `ChildDailyControlView.jsx` |
 | `[REQ-TASK-008]` | Aprobación masiva de tareas pendientes | `02-daily-task-management` | `ADR-0002` | Escenario: Aprobación masiva | `ApprovalsHub.jsx` |
 | `[REQ-TASK-009]` | Edición puntual de tarea para hoy | `02-daily-task-management` | `ADR-0004` | Escenario: Edición puntual de tarea | `ChildDailyControlView.jsx` |
-| `[REQ-TASK-010]` | Eliminación de tarea de la jornada | `02-daily-task-management` | `ADR-0004` | Escenario: Borrado de tarea diaria | `ChildDailyControlView.jsx` |
+| `[REQ-TASK-010]` | Eliminación de tarea y normalización | `02-daily-task-management` | `ADR-0004` | Escenario: Normalización correlativa de orderIndex | `ChildDailyControlView.jsx`, `AppContext.jsx` |
 | `[REQ-TASK-011]` | Marcado flexible y completitud no lineal| `02-daily-task-management` | `ADR-0001` | Escenario: Marcado de tareas en orden no lineal | `KidDashboard.jsx`, `AppContext.jsx` |
+| `[REQ-TASK-012]` | Preservación de enlace masterTaskId | `02-daily-task-management` | `ADR-0004` | Escenario: Preservación de masterTaskId | `AppContext.jsx`, `ChildDailyControlView.jsx` |
 | `[REQ-LIB-001]` | Banco central de tareas maestras | `03-master-library-and-routines` | `ADR-0004` | Escenario: Creación de tarea maestra | `MasterLibrary.jsx` |
 | `[REQ-LIB-002]` | Creación/Edición con notas en catálogo | `03-master-library-and-routines` | `ADR-0004` | Escenario: Creación de tarea maestra | `TaskMasterModal.jsx` |
 | `[REQ-LIB-003]` | Constructor de rutinas con reutilización | `03-master-library-and-routines` | `ADR-0004` | Escenario: Inyección de rutina | `RoutineMasterModal.jsx` |
@@ -84,6 +85,7 @@ specs/
 | `[REQ-CAL-005]` | Reembolso inmediato de canjes erróneos | `05-calendar-and-audit` | `ADR-0003` | Escenario: Reembolso de canje | `ParentCalendarAudit.jsx`, `AppContext.jsx` |
 | `[REQ-CAL-006]` | Corrección de bonos y sanciones pasadas | `05-calendar-and-audit` | `ADR-0002` | Escenario: Corrección de bonos pasados | `ParentCalendarAudit.jsx` |
 | `[REQ-CAL-007]` | Calendario infantil de logros (Read-only)| `05-calendar-and-audit` | `ADR-0003` | Escenario: Modo solo lectura infantil | `KidCalendarAchievements.jsx` |
+| `[REQ-CAL-008]` | Separación estructural de sanciones | `05-calendar-and-audit` | `ADR-0003` | Escenario: Reversión de sanción pasada | `ParentCalendarAudit.jsx`, `AppContext.jsx` |
 | `[REQ-GAM-001]` | Otorgamiento de bono instantáneo | `06-gamification-and-rules` | `ADR-0002` | Escenario: Asignación de bono rápido | `QuickPointsModal.jsx`, `AppContext.jsx` |
 | `[REQ-GAM-002]` | Aplicación de sanción instantánea | `06-gamification-and-rules` | `ADR-0002` | Escenario: Aplicación de sanción rápida | `QuickPointsModal.jsx`, `AppContext.jsx` |
 | `[REQ-GAM-003]` | Política de acumulación continua | `06-gamification-and-rules` | `ADR-0002` | Escenario: Modo de acumulación continua | `HouseholdSettings.jsx`, `AppContext.jsx` |

@@ -4,8 +4,8 @@ import { ChunkyButton } from '../Common/ChunkyButton';
 import { useApp } from '../../context/AppContext';
 import { Calendar, Check } from 'lucide-react';
 
-export const AssignMasterTaskModal = ({ isOpen, onClose, targetTask = null, targetChildId }) => {
-  const { data, assignMasterTaskToChild } = useApp();
+export const AssignMasterTaskModal = ({ isOpen, onClose, targetTask = null, targetChildId, onTriggerDuplicateModal }) => {
+  const { data, assignMasterTaskToChild, checkDuplicateForMasterTask } = useApp();
   const [selectedTaskId, setSelectedTaskId] = useState(targetTask?.id || data.masterTasks[0]?.id || '');
   const [selectedChildId, setSelectedChildId] = useState(targetChildId || data.children[0]?.id || 'child-mateo');
   const [scheduleType, setScheduleType] = useState('today'); // 'today' | 'daily' | 'weekly' | 'specific_date' | 'date_range'
@@ -53,6 +53,15 @@ export const AssignMasterTaskModal = ({ isOpen, onClose, targetTask = null, targ
       details = specificDate;
     } else if (scheduleType === 'date_range') {
       details = `${startDate} al ${endDate}`;
+    }
+
+    const willApplyToday = scheduleType === 'today' || scheduleType === 'daily';
+    const isDuplicate = checkDuplicateForMasterTask ? checkDuplicateForMasterTask(selectedChildId, currentTask.id) : false;
+
+    if (willApplyToday && isDuplicate && onTriggerDuplicateModal) {
+      onClose();
+      onTriggerDuplicateModal(selectedChildId, currentTask, scheduleType, details);
+      return;
     }
 
     assignMasterTaskToChild(selectedChildId, currentTask.id, scheduleType, details);

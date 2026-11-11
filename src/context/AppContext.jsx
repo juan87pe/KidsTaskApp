@@ -100,6 +100,62 @@ export const AppProvider = ({ children }) => {
   };
 
   // ----------------------------------------------------
+  // HELPERS FOR POINTS, LEVELS & TEMPORAL SCHEDULING
+  // ----------------------------------------------------
+  const calculateLevel = (totalPoints) => {
+    if (totalPoints >= 1000) return 'Nivel 5 • Maestro Legendario';
+    if (totalPoints >= 500) return 'Nivel 4 • Campeón';
+    if (totalPoints >= 250) return 'Nivel 3 • Aventurero';
+    if (totalPoints >= 100) return 'Nivel 2 • Explorador';
+    return 'Nivel 1 • Principiante';
+  };
+
+  const updateChildPointsAndLevel = (children, childId, deltaPoints, countsTowardsLevel = true) => {
+    return children.map(c => {
+      if (c.id === childId) {
+        const newCurrent = Math.max(0, c.currentPoints + deltaPoints);
+        const currentTotal = c.totalPointsEarned ?? c.currentPoints;
+        const newTotal = countsTowardsLevel ? Math.max(0, currentTotal + deltaPoints) : currentTotal;
+        return {
+          ...c,
+          currentPoints: newCurrent,
+          totalPointsEarned: newTotal,
+          level: calculateLevel(newTotal)
+        };
+      }
+      return c;
+    });
+  };
+
+  const shouldScheduleApplyOnDate = (assignment, targetDateStr) => {
+    if (!assignment) return false;
+    if (assignment.skippedDate === targetDateStr) return false;
+    if (assignment.isPaused && assignment.pausedUntil && assignment.pausedUntil > targetDateStr) return false;
+    const type = assignment.scheduleType || 'daily';
+    if (type === 'today' || type === 'daily') return true;
+    const targetDate = new Date(targetDateStr + 'T12:00:00');
+    const dayOfWeek = targetDate.getDay();
+    if (type === 'weekdays') return dayOfWeek >= 1 && dayOfWeek <= 5;
+    if (type === 'weekly') {
+      const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const dayName = dayNames[dayOfWeek];
+      const details = assignment.scheduleDetails || '';
+      return details.includes(dayName);
+    }
+    if (type === 'specific_date') {
+      return assignment.scheduleDetails === targetDateStr;
+    }
+    if (type === 'date_range') {
+      const parts = (assignment.scheduleDetails || '').split(' al ');
+      if (parts.length === 2) {
+        return targetDateStr >= parts[0].trim() && targetDateStr <= parts[1].trim();
+      }
+      return true;
+    }
+    return true;
+  };
+
+  // ----------------------------------------------------
   // TASK ASSIGNMENTS & REORDERING
   // ----------------------------------------------------
 
@@ -142,18 +198,13 @@ export const AppProvider = ({ children }) => {
           return {
             ...asg,
             status: 'approved',
-            approvedBy: activeTutor.name
+            approvedBy: activeTutor?.name || 'Papás'
           };
         }
         return asg;
       });
 
-      const updatedChildren = prev.children.map(c => {
-        if (c.id === targetChildId) {
-          return { ...c, currentPoints: c.currentPoints + taskPoints };
-        }
-        return c;
-      });
+      const updatedChildren = updateChildPointsAndLevel(prev.children, targetChildId, taskPoints, true);
 
       const newTx = {
         id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
@@ -164,7 +215,7 @@ export const AppProvider = ({ children }) => {
         reason: `Aprobación de tarea: ${task.title}`,
         date: todayStr,
         timestamp: new Date().toISOString(),
-        actor: activeTutor.name,
+        actor: activeTutor?.name || 'Papás',
         isReversed: false
       };
 
@@ -208,19 +259,14 @@ export const AppProvider = ({ children }) => {
           return {
             ...asg,
             status: newStatus,
-            approvedBy: isApproved ? null : activeTutor.name,
+            approvedBy: isApproved ? null : (activeTutor?.name || 'Papás'),
             completedAt: isApproved ? null : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           };
         }
         return asg;
       });
 
-      const updatedChildren = prev.children.map(c => {
-        if (c.id === task.childId) {
-          return { ...c, currentPoints: Math.max(0, c.currentPoints + pointsDiff) };
-        }
-        return c;
-      });
+      const updatedChildren = updateChildPointsAndLevel(prev.children, task.childId, pointsDiff, true);
 
       const newTx = {
         id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
@@ -231,7 +277,7 @@ export const AppProvider = ({ children }) => {
         reason: isApproved ? `Reversión de tarea: ${task.title}` : `Validación directa: ${task.title}`,
         date: todayStr,
         timestamp: new Date().toISOString(),
-        actor: activeTutor.name,
+        actor: activeTutor?.name || 'Papás',
         isReversed: false
       };
 
@@ -263,21 +309,21 @@ export const AppProvider = ({ children }) => {
             reason: `Aprobación masiva: ${asg.title}`,
             date: todayStr,
             timestamp: new Date().toISOString(),
-            actor: activeTutor.name,
+            actor: activeTutor?.name || 'Papás',
             isReversed: false
           });
           return {
             ...asg,
             status: 'approved',
-            approvedBy: activeTutor.name
+            approvedBy: activeTutor?.name || 'Papás'
           };
         }
         return asg;
       });
 
-      const updatedChildren = prev.children.map(c => {
-        const add = pointsToAddByChild[c.id] || 0;
-        return { ...c, currentPoints: c.currentPoints + add };
+      let updatedChildren = [...prev.children];
+      Object.entries(pointsToAddByChild).forEach(([cId, add]) => {
+        updatedChildren = updateChildPointsAndLevel(updatedChildren, cId, add, true);
       });
 
       return {
@@ -321,23 +367,48 @@ export const AppProvider = ({ children }) => {
     });
   };
 
-  // Delete task from child's day
+  // Delete task from child's day and renormalize orderIndex
   const removeTaskFromDay = (assignmentId) => {
-    setData(prev => ({
-      ...prev,
-      todayAssignments: prev.todayAssignments.filter(a => a.id !== assignmentId)
-    }));
+    setData(prev => {
+      const taskToRemove = prev.todayAssignments.find(a => a.id === assignmentId);
+      const filtered = prev.todayAssignments.filter(a => a.id !== assignmentId);
+      if (!taskToRemove) return { ...prev, todayAssignments: filtered };
+
+      const childTasks = filtered
+        .filter(a => a.childId === taskToRemove.childId)
+        .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+
+      let counter = 1;
+      const reindexedChildTasks = childTasks.map(t => ({ ...t, orderIndex: counter++ }));
+
+      const updatedAssignments = filtered.map(a => {
+        if (a.childId === taskToRemove.childId) {
+          const matched = reindexedChildTasks.find(ct => ct.id === a.id);
+          return matched || a;
+        }
+        return a;
+      });
+
+      return {
+        ...prev,
+        todayAssignments: updatedAssignments
+      };
+    });
   };
 
   // Add a quick one-off task directly to child's day
   const addQuickTaskToChildDay = (childId, taskData) => {
     setData(prev => {
       const childTasks = prev.todayAssignments.filter(a => a.childId === childId);
-      const nextOrder = childTasks.length + 1;
+      const currentMax = childTasks.reduce((max, a) => Math.max(max, a.orderIndex || 0), 0);
+      const nextOrder = currentMax + 1;
+      const todayStr = new Date().toISOString().split('T')[0];
 
       const newTask = {
-        id: `asg-${Date.now()}`,
+        id: `asg-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
         childId,
+        masterTaskId: taskData.masterTaskId || null,
+        date: todayStr,
         title: taskData.title,
         points: Number(taskData.points) || 20,
         approvalMode: taskData.approvalMode || 'kid_request',
@@ -370,6 +441,17 @@ export const AppProvider = ({ children }) => {
     return routine.tasks.filter(t => existingTitles.includes(t.title.toLowerCase().trim()));
   };
 
+  const checkDuplicateForMasterTask = (childId, masterTaskId) => {
+    const masterTask = data.masterTasks.find(mt => mt.id === masterTaskId);
+    if (!masterTask) return false;
+    const taskTitle = masterTask.title.toLowerCase().trim();
+    return data.todayAssignments.some(a =>
+      a.childId === childId &&
+      ((a.masterTaskId && a.masterTaskId === masterTaskId) ||
+       (a.title && a.title.toLowerCase().trim() === taskTitle))
+    );
+  };
+
   const injectRoutine = (childId, routineId, allowDuplicates = false) => {
     const routine = data.masterRoutines.find(r => r.id === routineId);
     if (!routine) return;
@@ -383,6 +465,7 @@ export const AppProvider = ({ children }) => {
         .filter(a => a.childId === childId)
         .reduce((max, a) => Math.max(max, a.orderIndex || 0), 0);
 
+      const todayStr = new Date().toISOString().split('T')[0];
       let addedCount = 0;
       const newAssignments = [];
 
@@ -396,6 +479,8 @@ export const AppProvider = ({ children }) => {
         newAssignments.push({
           id: `asg-${Date.now()}-${i}`,
           childId,
+          masterTaskId: t.masterTaskId || null,
+          date: todayStr,
           title: t.title,
           points: t.points,
           approvalMode: 'kid_request',
@@ -426,6 +511,17 @@ export const AppProvider = ({ children }) => {
     else if (customSchedule === 'specific_date') scheduleText = `Fecha (${scheduleDetails})`;
     else if (customSchedule === 'date_range') scheduleText = `Período (${scheduleDetails})`;
 
+    const todayStr = new Date().toISOString().split('T')[0];
+    const assignmentRule = {
+      childId,
+      scheduleType: customSchedule,
+      scheduleText,
+      scheduleDetails,
+      isPaused: false,
+      pausedUntil: null,
+      skippedDate: null
+    };
+
     setData(prev => {
       const updatedMasterTasks = prev.masterTasks.map(mt => {
         if (mt.id === masterTaskId) {
@@ -433,7 +529,7 @@ export const AppProvider = ({ children }) => {
           const filtered = currentAssigned.filter(ac => (ac.childId || ac) !== childId);
           return {
             ...mt,
-            assignedChildren: [...filtered, { childId, scheduleType: customSchedule, scheduleText }]
+            assignedChildren: [...filtered, assignmentRule]
           };
         }
         return mt;
@@ -445,14 +541,16 @@ export const AppProvider = ({ children }) => {
       };
     });
 
-    addQuickTaskToChildDay(childId, {
-      title: masterTask.title,
-      points: masterTask.defaultPoints,
-      approvalMode: masterTask.defaultApprovalMode,
-      iconSvg: masterTask.iconSvg,
-      note: masterTask.description,
-      masterTaskId: masterTask.id
-    });
+    if (shouldScheduleApplyOnDate(assignmentRule, todayStr)) {
+      addQuickTaskToChildDay(childId, {
+        title: masterTask.title,
+        points: masterTask.defaultPoints,
+        approvalMode: masterTask.defaultApprovalMode,
+        iconSvg: masterTask.iconSvg,
+        note: masterTask.description,
+        masterTaskId: masterTask.id
+      });
+    }
   };
 
   const unassignChildFromTask = (masterTaskId, childId, options = {}) => {
@@ -498,6 +596,7 @@ export const AppProvider = ({ children }) => {
 
       // 2. Only for today
       if (scope === 'today') {
+        const todayStr = new Date().toISOString().split('T')[0];
         const updatedMasterTasks = prev.masterTasks.map(mt => {
           if (mt.id === masterTaskId) {
             return {
@@ -505,8 +604,8 @@ export const AppProvider = ({ children }) => {
               assignedChildren: (mt.assignedChildren || []).map(ac => {
                 if ((ac.childId || ac) === childId) {
                   return typeof ac === 'object'
-                    ? { ...ac, skippedToday: true }
-                    : { childId: ac, skippedToday: true };
+                    ? { ...ac, skippedDate: todayStr, skippedToday: true }
+                    : { childId: ac, skippedDate: todayStr, skippedToday: true };
                 }
                 return ac;
               })
@@ -813,7 +912,7 @@ export const AppProvider = ({ children }) => {
       // Recalculate day status (full / partial / missed)
       const allApproved = updatedTasks.every(t => t.status === 'approved');
       const anyApproved = updatedTasks.some(t => t.status === 'approved');
-      const hasPenalties = (dayData.penalties || 0) > 0;
+      const hasPenalties = ((dayData.penaltiesList?.length || 0) > 0) || ((dayData.penalties || 0) > 0);
       let newStatus = 'missed';
       if (allApproved && !hasPenalties && updatedTasks.length > 0) {
         newStatus = 'full';
@@ -823,12 +922,25 @@ export const AppProvider = ({ children }) => {
         newStatus = 'missed';
       }
 
-      const updatedChild = prev.children.map(c => {
-        if (c.id === childId) {
-          return { ...c, currentPoints: Math.max(0, c.currentPoints + pointChange) };
-        }
-        return c;
-      });
+      const isClosedDay = dayData.isClosed || false;
+      let updatedChildren;
+      if (wasApproved && isClosedDay) {
+        // If the day was already closed/liquidated, protect current wallet balance from duplicate subtraction
+        updatedChildren = prev.children.map(c => {
+          if (c.id === childId) {
+            const currentTotal = c.totalPointsEarned ?? c.currentPoints;
+            const newTotal = Math.max(0, currentTotal - targetTask.points);
+            return {
+              ...c,
+              totalPointsEarned: newTotal,
+              level: calculateLevel(newTotal)
+            };
+          }
+          return c;
+        });
+      } else {
+        updatedChildren = updateChildPointsAndLevel(prev.children, childId, pointChange, true);
+      }
 
       const todayStr = new Date().toISOString().split('T')[0];
       const newTx = {
@@ -848,7 +960,7 @@ export const AppProvider = ({ children }) => {
 
       return {
         ...prev,
-        children: updatedChild,
+        children: updatedChildren,
         transactions: [...(prev.transactions || []), newTx],
         calendarHistory: {
           ...prev.calendarHistory,
@@ -881,6 +993,10 @@ export const AppProvider = ({ children }) => {
       const dayData = prev.calendarHistory[dateStr]?.[childId];
       if (!dayData) return prev;
 
+      // Idempotency check: if already refunded, do nothing
+      const existing = (dayData.redemptions || []).find(r => r.id === redemptionId);
+      if (!existing || existing.isRefunded) return prev;
+
       let refundPoints = 0;
       let targetRedemption = null;
       const updatedRedemptions = (dayData.redemptions || []).map(r => {
@@ -892,14 +1008,8 @@ export const AppProvider = ({ children }) => {
         return r;
       });
 
-      if (!targetRedemption) return prev;
-
-      const updatedChild = prev.children.map(c => {
-        if (c.id === childId) {
-          return { ...c, currentPoints: c.currentPoints + refundPoints };
-        }
-        return c;
-      });
+      // Refund restores wallet points (currentPoints), but does NOT increase totalPointsEarned
+      const updatedChildren = updateChildPointsAndLevel(prev.children, childId, refundPoints, false);
 
       const todayStr = new Date().toISOString().split('T')[0];
       const refundTx = {
@@ -915,10 +1025,18 @@ export const AppProvider = ({ children }) => {
         isReversed: false
       };
 
+      // Mark original transaction as isReversed if present
+      const updatedTransactions = (prev.transactions || []).map(tx => {
+        if (tx.childId === childId && tx.type === 'reward_redemption' && tx.reason?.includes(targetRedemption.rewardTitle)) {
+          return { ...tx, isReversed: true };
+        }
+        return tx;
+      });
+
       return {
         ...prev,
-        children: updatedChild,
-        transactions: [...(prev.transactions || []), refundTx],
+        children: updatedChildren,
+        transactions: [...updatedTransactions, refundTx],
         calendarHistory: {
           ...prev.calendarHistory,
           [dateStr]: {
@@ -937,17 +1055,75 @@ export const AppProvider = ({ children }) => {
     refundPastRedemption(dateStr, childId, redemptionId);
   };
 
+  // Reversal of past bonus or penalty
+  const revertPastBonusOrPenalty = (dateStr, childId, itemId, itemType) => {
+    setData(prev => {
+      const dayData = prev.calendarHistory[dateStr]?.[childId];
+      if (!dayData) return prev;
+
+      let pointDelta = 0;
+      let reasonText = '';
+      let updatedBonuses = dayData.bonuses || [];
+      let updatedPenaltiesList = dayData.penaltiesList || [];
+
+      if (itemType === 'bonus') {
+        const targetBonus = updatedBonuses.find(b => b.id === itemId);
+        if (!targetBonus || targetBonus.isReversed) return prev;
+        pointDelta = -Math.abs(targetBonus.points);
+        reasonText = `Anulación de bono: ${targetBonus.reason || 'Bono'} (${dateStr})`;
+        updatedBonuses = updatedBonuses.map(b => b.id === itemId ? { ...b, isReversed: true } : b);
+      } else if (itemType === 'penalty') {
+        const targetPenalty = updatedPenaltiesList.find(p => p.id === itemId);
+        if (!targetPenalty || targetPenalty.isReversed) return prev;
+        pointDelta = Math.abs(targetPenalty.points);
+        reasonText = `Anulación de sanción: ${targetPenalty.reason || 'Sanción'} (${dateStr})`;
+        updatedPenaltiesList = updatedPenaltiesList.map(p => p.id === itemId ? { ...p, isReversed: true } : p);
+      } else {
+        return prev;
+      }
+
+      const countsTowardsLevel = itemType === 'bonus';
+      const updatedChildren = updateChildPointsAndLevel(prev.children, childId, pointDelta, countsTowardsLevel);
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const revertTx = {
+        id: `tx-revert-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        familyId: prev.family?.id || 'fam-1',
+        childId,
+        type: 'reversal',
+        points: pointDelta,
+        reason: reasonText,
+        date: todayStr,
+        timestamp: new Date().toISOString(),
+        actor: activeTutor?.name || 'Papás',
+        isReversed: false
+      };
+
+      const updatedHistoryDay = {
+        ...dayData,
+        bonuses: updatedBonuses,
+        penaltiesList: updatedPenaltiesList,
+        netPoints: (dayData.netPoints || 0) + pointDelta
+      };
+
+      return {
+        ...prev,
+        children: updatedChildren,
+        transactions: [...(prev.transactions || []), revertTx],
+        calendarHistory: {
+          ...prev.calendarHistory,
+          [dateStr]: {
+            ...prev.calendarHistory[dateStr],
+            [childId]: updatedHistoryDay
+          }
+        }
+      };
+    });
+  };
+
   // ----------------------------------------------------
   // QUICK POINTS (BONUSES & PENALTIES) & GAMIFICATION
   // ----------------------------------------------------
-  const calculateLevel = (totalPoints) => {
-    if (totalPoints >= 1000) return 'Nivel 5 • Maestro Legendario';
-    if (totalPoints >= 500) return 'Nivel 4 • Campeón';
-    if (totalPoints >= 250) return 'Nivel 3 • Aventurero';
-    if (totalPoints >= 100) return 'Nivel 2 • Explorador';
-    return 'Nivel 1 • Principiante';
-  };
-
   const applyQuickPoints = (childId, points, reason, isBonus = true) => {
     const delta = isBonus ? Math.abs(points) : -Math.abs(points);
     const todayStr = new Date().toISOString().split('T')[0];
@@ -966,19 +1142,7 @@ export const AppProvider = ({ children }) => {
         isReversed: false
       };
 
-      const updatedChildren = prev.children.map(c => {
-        if (c.id === childId) {
-          const newCurrent = Math.max(0, c.currentPoints + delta);
-          const newTotal = (c.totalPointsEarned ?? c.currentPoints) + (isBonus ? delta : 0);
-          return {
-            ...c,
-            currentPoints: newCurrent,
-            totalPointsEarned: newTotal,
-            level: calculateLevel(newTotal)
-          };
-        }
-        return c;
-      });
+      const updatedChildren = updateChildPointsAndLevel(prev.children, childId, delta, isBonus);
 
       return {
         ...prev,
@@ -1000,8 +1164,63 @@ export const AppProvider = ({ children }) => {
       const family = prev.family || {};
       const isDailyReset = family.pointsRule === 'daily_reset';
       const isWeeklyReset = family.pointsRule === 'weekly_reset';
-      if (!isDailyReset && !isWeeklyReset) return prev;
+      const targetDate = new Date(dateStr + 'T12:00:00');
+      const isSunday = targetDate.getDay() === 0;
+      const shouldResetPoints = isDailyReset || (isWeeklyReset && isSunday);
 
+      // 1. Archive todayAssignments into calendarHistory for each child
+      const updatedCalendarHistory = { ...prev.calendarHistory };
+      const currentHistoryDate = updatedCalendarHistory[dateStr] || {};
+      const newHistoryDate = { ...currentHistoryDate };
+
+      prev.children.forEach(child => {
+        const childAssignments = (prev.todayAssignments || []).filter(
+          a => a.childId === child.id && (!a.date || a.date === dateStr)
+        );
+
+        const existingChildHistory = currentHistoryDate[child.id] || {
+          bonuses: [],
+          penaltiesList: [],
+          redemptions: []
+        };
+
+        const allApproved = childAssignments.length > 0 && childAssignments.every(t => t.status === 'approved');
+        const anyApproved = childAssignments.some(t => t.status === 'approved');
+        const hasPenalties = ((existingChildHistory.penaltiesList?.length || 0) > 0) || ((existingChildHistory.penalties || 0) > 0);
+
+        let status = 'missed';
+        if (allApproved && !hasPenalties && childAssignments.length > 0) {
+          status = 'full';
+        } else if (anyApproved && !hasPenalties) {
+          status = 'partial';
+        } else {
+          status = 'missed';
+        }
+
+        const taskPoints = childAssignments
+          .filter(t => t.status === 'approved')
+          .reduce((sum, t) => sum + (t.points || 0), 0);
+
+        newHistoryDate[child.id] = {
+          ...existingChildHistory,
+          status,
+          tasks: childAssignments,
+          netPoints: (existingChildHistory.netPoints || 0) + taskPoints,
+          isClosed: true
+        };
+      });
+
+      updatedCalendarHistory[dateStr] = newHistoryDate;
+
+      // 2. If points should not be reset, just update calendarHistory
+      if (!shouldResetPoints) {
+        return {
+          ...prev,
+          calendarHistory: updatedCalendarHistory
+        };
+      }
+
+      // 3. Reset points and optionally auto-liquidate
       const autoLiq = family.autoLiquidation;
       const newTransactions = [];
       const updatedChildren = prev.children.map(child => {
@@ -1041,7 +1260,8 @@ export const AppProvider = ({ children }) => {
       return {
         ...prev,
         children: updatedChildren,
-        transactions: [...(prev.transactions || []), ...newTransactions]
+        transactions: [...(prev.transactions || []), ...newTransactions],
+        calendarHistory: updatedCalendarHistory
       };
     });
   };
@@ -1152,6 +1372,7 @@ export const AppProvider = ({ children }) => {
         moveTaskOrder,
         removeTaskFromDay,
         addQuickTaskToChildDay,
+        checkDuplicateForMasterTask,
         checkDuplicatesForRoutine,
         injectRoutine,
         assignMasterTaskToChild,
@@ -1172,6 +1393,8 @@ export const AppProvider = ({ children }) => {
         retroactiveValidateTask,
         retroactiveRevokeTask,
         refundRedemption,
+        revertPastBonusOrPenalty,
+        revertBonusOrPenalty: revertPastBonusOrPenalty,
         applyQuickPoints,
         addBonusOrPenalty,
         executeDailyReset,

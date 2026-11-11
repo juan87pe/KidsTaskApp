@@ -380,4 +380,44 @@ describe('Feature 03: Biblioteca Familiar y Rutinas (BDD Scenarios)', () => {
     expect(within(camaCard).getByRole('button', { name: /Asignar Tarea/i })).toBeInTheDocument();
     expect(within(dientesCard).getByRole('button', { name: /Asignar Tarea/i })).toBeInTheDocument();
   });
+
+  it('Escenario 6: Detección preventiva de duplicado al asignar tarea maestra individual [REQ-LIB-006]', async () => {
+    render(
+      <AppProvider>
+        <App />
+      </AppProvider>
+    );
+
+    await unlockParentMode('library');
+
+    // Mateo ya tiene "Hacer la cama" en todayAssignments por defecto
+    // Intentamos asignarle nuevamente "Hacer la cama" desde la biblioteca
+    const camaTask = screen.getByText('Hacer la cama');
+    const camaCard = camaTask.closest('div[class*="border-2"]');
+    const assignBtn = within(camaCard).getByRole('button', { name: /Asignar Tarea/i });
+    fireEvent.click(assignBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Configura la asignación de Hacer la cama/i)).toBeInTheDocument();
+    });
+
+    // Seleccionamos "Para el Día Actual (Hoy)" y pulsamos Confirmar Asignación
+    const confirmAssignBtn = screen.getByRole('button', { name: /Confirmar Asignación/i });
+    fireEvent.click(confirmAssignBtn);
+
+    // Debe abrir el modal preventivo de detección de duplicados
+    await waitFor(() => {
+      expect(screen.getByText('⚠️ Tareas Duplicadas Detectadas')).toBeInTheDocument();
+      expect(screen.getByText(/Hacer la cama ya existe para hoy/i)).toBeInTheDocument();
+    });
+
+    // Pulsamos "Omitir duplicado (Recomendado)"
+    const omitBtn = screen.getByRole('button', { name: /Omitir duplicado/i });
+    fireEvent.click(omitBtn);
+
+    // El modal de duplicados se cierra
+    await waitFor(() => {
+      expect(screen.queryByText('⚠️ Tareas Duplicadas Detectadas')).not.toBeInTheDocument();
+    });
+  });
 });

@@ -10,7 +10,8 @@ export const ParentCalendarAudit = () => {
     activeChildControlId,
     setActiveChildControlId,
     modifyPastTaskValidation,
-    refundPastRedemption
+    refundPastRedemption,
+    revertPastBonusOrPenalty
   } = useApp();
 
   const history = data.calendarHistory || {};
@@ -119,9 +120,9 @@ export const ParentCalendarAudit = () => {
             <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-900 font-extrabold text-xs">
               ⭐ Balance Neto: +{dayData?.netPoints || 0} pts
             </span>
-            {dayData?.penalties > 0 && (
+            {((dayData?.penaltiesList?.length || 0) > 0 || (dayData?.penalties || 0) > 0) && (
               <span className="px-2.5 py-1 rounded-full bg-red-100 text-red-800 font-extrabold text-xs">
-                ⚠️ -{dayData.penalties} pts sanción
+                ⚠️ Sanciones registradas
               </span>
             )}
           </div>
@@ -189,6 +190,84 @@ export const ParentCalendarAudit = () => {
             <p className="text-xs text-slate-400 italic">No hay registros de tareas en esta fecha.</p>
           )}
         </div>
+
+        {/* Bonos Especiales en esta Fecha */}
+        {dayData?.bonuses && dayData.bonuses.length > 0 && (
+          <div className="mt-5 pt-4 border-t border-slate-200 space-y-3">
+            <p className="text-xs font-extrabold text-amber-700 uppercase tracking-wider">
+              Bonos Rápidos Especiales en esta Fecha:
+            </p>
+
+            {dayData.bonuses.map(b => (
+              <div
+                key={b.id}
+                className="p-3.5 rounded-squircle-sm border-2 border-amber-200 bg-amber-50/40 flex items-center justify-between gap-3"
+              >
+                <div>
+                  <h5 className="font-bold text-sm text-[#1E3A5F]">
+                    ⭐ {b.reason || 'Bono especial'}
+                  </h5>
+                  <p className="text-[11px] text-slate-500">
+                    Puntos: <strong className="text-amber-700">+{b.points} pts</strong> • {b.timestamp ? new Date(b.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                  </p>
+                </div>
+
+                {b.isReversed ? (
+                  <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-squircle-sm border border-slate-200">
+                    ↩️ Bono Anulado (-{b.points} pts)
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => revertPastBonusOrPenalty(selectedDate, targetChild.id, b.id, 'bonus')}
+                    className="px-3 py-1.5 rounded-squircle-sm bg-white border border-amber-300 text-amber-800 hover:bg-amber-100 text-xs font-bold shadow-sm flex items-center gap-1 transition"
+                  >
+                    <RotateCcw size={13} />
+                    <span>Anular Bono (-{b.points})</span>
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Sanciones Disciplinarias en esta Fecha */}
+        {dayData?.penaltiesList && dayData.penaltiesList.length > 0 && (
+          <div className="mt-5 pt-4 border-t border-slate-200 space-y-3">
+            <p className="text-xs font-extrabold text-rose-700 uppercase tracking-wider">
+              Sanciones Disciplinarias en esta Fecha:
+            </p>
+
+            {dayData.penaltiesList.map(p => (
+              <div
+                key={p.id}
+                className="p-3.5 rounded-squircle-sm border-2 border-rose-200 bg-rose-50/40 flex items-center justify-between gap-3"
+              >
+                <div>
+                  <h5 className="font-bold text-sm text-[#1E3A5F]">
+                    ⚠️ {p.reason || 'Sanción disciplinaria'}
+                  </h5>
+                  <p className="text-[11px] text-slate-500">
+                    Descuento: <strong className="text-rose-700">{p.points} pts</strong> • {p.timestamp ? new Date(p.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                  </p>
+                </div>
+
+                {p.isReversed ? (
+                  <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-squircle-sm border border-slate-200">
+                    ↩️ Sanción Anulada (+{Math.abs(p.points)} pts devueltos)
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => revertPastBonusOrPenalty(selectedDate, targetChild.id, p.id, 'penalty')}
+                    className="px-3 py-1.5 rounded-squircle-sm bg-white border border-rose-300 text-rose-800 hover:bg-rose-100 text-xs font-bold shadow-sm flex items-center gap-1 transition"
+                  >
+                    <RotateCcw size={13} />
+                    <span>Anular Sanción (+{Math.abs(p.points)})</span>
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Premios Canjeados y Reembolsos */}
         {dayData?.redemptions && dayData.redemptions.length > 0 && (

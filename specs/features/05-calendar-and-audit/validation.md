@@ -45,3 +45,31 @@ Cuando inspecciona cualquier fecha pasada con tareas cumplidas
 Entonces visualiza estrellas doradas y sus logros detallados
 Y la interfaz no presenta botones de edición, validación ni modificación de saldo.
 ```
+
+### Escenario: Reversión de sanción pasada en el panel de auditoría [REQ-CAL-006] [REQ-CAL-008]
+```gherkin
+Dado que en el día "2026-08-23" Mateo tiene registrada una sanción de -10 puntos en "penaltiesList"
+Y el saldo actual de Mateo es de 150 puntos
+Cuando el padre pulsa "Anular Sanción (+10)" en la sección de sanciones de ese día
+Entonces la sanción se marca como "isReversed: true"
+Y se emite una transacción de tipo "retroactive_adjustment" por +10 puntos
+Y el saldo de Mateo se incrementa inmediatamente a 160 puntos
+Y el resumen de penalizaciones del día se actualiza a 0 puntos.
+```
+
+### Escenario: Idempotencia en el reembolso de un canje de premio [REQ-CAL-005]
+```gherkin
+Dado que un canje de premio ya fue reembolsado y figura con "isRefunded: true"
+Cuando el padre inspecciona el detalle del día en el calendario
+Entonces la tarjeta del canje muestra la insignia de "Reembolsado"
+Y el botón de reembolso ya no se encuentra disponible, impidiendo acreditar puntos por duplicado.
+```
+
+### Escenario: Compensación justa en revocación de días cerrados [REQ-CAL-004]
+```gherkin
+Dado que el hogar opera bajo "daily_reset"
+Y en un día pasado Mateo obtuvo 20 puntos por una tarea que luego caducaron a 0 sin haber sido canjeados
+Cuando el padre revoca retroactivamente dicha tarea
+Entonces la tarea histórica pasa a estado "uncompleted" y su netPoints se ajusta
+Pero el saldo de la jornada actual de Mateo permanece intacto sin deducción injusta.
+```

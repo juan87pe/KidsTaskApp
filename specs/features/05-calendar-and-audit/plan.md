@@ -26,3 +26,6 @@
 - [x] `TASK-CAL-05`: Implementar función de reembolso de canjes de premios (`refundRedemption`) con emisión de `refund_reversal`.
 - [x] `TASK-CAL-06`: Construir `KidCalendarAchievements.jsx` con visualización lúdica de estrellas y tarjetas de logros.
 - [x] `TASK-CAL-07`: Añadir pruebas automatizadas para el recálculo contable y consistencia de saldos en correcciones históricas (`src/test/features/05-calendar-and-audit.test.jsx`).
+- [x] `TASK-CAL-08`: Segregar estructuralmente las sanciones (`penaltiesList`) de las tareas en `calendarHistory` y adaptar la UI de `ParentCalendarAudit.jsx`.
+- [x] `TASK-CAL-09`: Implementar función de reversión de bonos y sanciones pasadas (`revertPastBonusOrPenalty`) con recálculo de balance neto y mapa de calor.
+- [x] `TASK-CAL-10`: Garantizar idempotencia en reembolsos de canjes (`isRefunded`) y emisión estricta del tipo `retroactive_adjustment` en el ledger.

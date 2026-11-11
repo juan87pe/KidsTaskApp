@@ -210,4 +210,42 @@ describe('Feature 05: Calendario Histórico, Auditoría y Correcciones Retroacti
     // Y se muestran las tareas de Sofía para esa fecha (ej: "Guardar peluches")
     expect(screen.getByText('Guardar peluches')).toBeInTheDocument();
   });
+
+  it('Escenario 6: Segregación y anulación de sanción disciplinaria en historial [REQ-CAL-008]', async () => {
+    render(
+      <AppProvider>
+        <App />
+      </AppProvider>
+    );
+
+    await unlockParentCalendar();
+
+    // Dado que navegamos a la fecha "2026-08-23" de Mateo
+    const dayBtn = screen.getByRole('button', { name: /23 Ago 2026/i });
+    fireEvent.click(dayBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('2026-08-23 (Mateo)')).toBeInTheDocument();
+    });
+
+    // Entonces la sanción NO aparece listada dentro de las tareas ordinarias
+    expect(screen.queryByText(/Validar como Realizada Ahora \(\+-10\)/i)).not.toBeInTheDocument();
+
+    // Y aparece en la sección dedicada de sanciones disciplinarias
+    expect(screen.getByText('Sanciones Disciplinarias en esta Fecha:')).toBeInTheDocument();
+    expect(screen.getByText(/Discusión por control remoto/i)).toBeInTheDocument();
+
+    // Cuando el padre pulsa "Anular Sanción (+10)"
+    const revertBtn = screen.getByRole('button', { name: /Anular Sanción \(\+10\)/i });
+    fireEvent.click(revertBtn);
+
+    // Entonces la sanción se marca como anulada con puntos devueltos
+    await waitFor(() => {
+      expect(screen.getByText(/↩️ Sanción Anulada \(\+10 pts devueltos\)/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByRole('button', { name: /Anular Sanción \(\+10\)/i })).not.toBeInTheDocument();
+
+    // Y el balance neto del día se actualiza a +20 pts (era 10 + 10)
+    expect(screen.getByText(/⭐ Balance Neto: \+20 pts/i)).toBeInTheDocument();
+  });
 });

@@ -49,8 +49,9 @@
         "name": { "type": "string" },
         "avatarUrl": { "type": "string" },
         "currentPoints": { "type": "integer", "minimum": 0 },
+        "totalPointsEarned": { "type": "integer", "minimum": 0 },
         "colorTheme": { "type": "string" },
-        "level": { "type": "integer", "minimum": 1 }
+        "level": { "type": ["string", "integer"] }
       }
     },
     "MasterTask": {
@@ -66,7 +67,26 @@
           "type": "string",
           "enum": ["kid_request", "parent_only"]
         },
-        "iconSvg": { "type": "string" }
+        "iconSvg": { "type": "string" },
+        "assignedChildren": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["childId", "scheduleType"],
+            "properties": {
+              "childId": { "type": "string" },
+              "scheduleType": {
+                "type": "string",
+                "enum": ["today", "daily", "weekdays", "weekly", "specific_date", "date_range"]
+              },
+              "scheduleText": { "type": "string" },
+              "scheduleDetails": { "type": "string" },
+              "isPaused": { "type": "boolean" },
+              "pausedUntil": { "type": ["string", "null"] },
+              "skippedDate": { "type": ["string", "null"] }
+            }
+          }
+        }
       }
     },
     "MasterRoutine": {
@@ -154,6 +174,79 @@
         "isReversed": { "type": "boolean" },
         "reversedBy": { "type": ["string", "null"] },
         "timestamp": { "type": "string" }
+      }
+    },
+    "CalendarDayEntry": {
+      "type": "object",
+      "required": ["status", "netPoints", "penalties", "tasks"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["full", "partial", "missed", "empty"]
+        },
+        "netPoints": { "type": "integer" },
+        "penalties": { "type": "integer", "minimum": 0 },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "points", "status"],
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "points": { "type": "integer", "minimum": 1 },
+              "status": {
+                "type": "string",
+                "enum": ["approved", "missed", "uncompleted", "pending"]
+              },
+              "completedAt": { "type": ["string", "null"] },
+              "approvedBy": { "type": ["string", "null"] },
+              "isRetroactivelyModified": { "type": "boolean" }
+            }
+          }
+        },
+        "bonuses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "points", "reason"],
+            "properties": {
+              "id": { "type": "string" },
+              "points": { "type": "integer", "minimum": 1 },
+              "reason": { "type": "string" },
+              "isReversed": { "type": "boolean" },
+              "reversedBy": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "penaltiesList": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "points", "reason"],
+            "properties": {
+              "id": { "type": "string" },
+              "points": { "type": "integer" },
+              "reason": { "type": "string" },
+              "isReversed": { "type": "boolean" },
+              "reversedBy": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "redemptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "rewardTitle", "pointsCost"],
+            "properties": {
+              "id": { "type": "string" },
+              "rewardTitle": { "type": "string" },
+              "pointsCost": { "type": "integer", "minimum": 1 },
+              "redeemedAt": { "type": "string" },
+              "isRefunded": { "type": "boolean" }
+            }
+          }
+        }
       }
     }
   }

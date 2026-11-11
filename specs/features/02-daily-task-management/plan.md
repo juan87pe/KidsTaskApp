@@ -28,3 +28,4 @@
 - [x] `TASK-TASK-07`: Integrar emisión de transacciones contables `task_reward` al aprobar tareas con disparo de confeti reactivo.
 - [x] `TASK-TASK-08`: Añadir controles de edición puntual y borrado de tareas del día en `ChildDailyControlView.jsx`.
 - [x] `TASK-TASK-09`: Crear suite de pruebas de integración para el ciclo de vida completo de tareas y reordenamiento.
+- [x] `TASK-TASK-10`: Normalizar de forma continua `orderIndex` tras eliminaciones/inserciones y garantizar la preservación de `masterTaskId` en todas las tareas asignadas.

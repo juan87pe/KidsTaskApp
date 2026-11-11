@@ -23,7 +23,7 @@
 - **CUANDO** un padre pulse `"Aprobar ✔️"` en el Centro de Aprobaciones o en la Ficha Diaria, el sistema deberá:
   1. Cambiar el estado de la tarea a `approved`.
   2. Registrar la marca de tiempo de completado (`completedAt`).
-  3. Emitir una transacción de tipo `task_reward` sumando los puntos al saldo del niño (`currentPoints += points`).
+  3. Emitir una transacción de tipo `task_reward` sumando los puntos al saldo del niño (`currentPoints += points`) e incrementando el acumulado histórico `totalPointsEarned` con recálculo dinámico de su nivel (`level`).
   4. Disparar confeti visual y feedback auditivo de felicitación.
 
 ### [REQ-TASK-006] Rechazo de Solicitud de Tarea
@@ -33,13 +33,16 @@
 - **DONDE** una tarea esté configurada como `parent_only`, el botón interactivo no estará disponible para el niño y mostrará la leyenda `"Marcado por Padres 👨‍👩‍👦"`, permitiendo su validación únicamente desde el rol parental.
 
 ### [REQ-TASK-008] Aprobación Masiva de Tareas Pendientes
-- **CUANDO** un padre pulse el botón flotante `"Aprobar Todas las Tareas 🚀"` en el Centro de Aprobaciones, el sistema deberá aprobar en lote todas las solicitudes pendientes y acreditar la suma total de puntos acumulados.
+- **CUANDO** un padre pulse el botón flotante `"Aprobar Todas las Tareas 🚀"` en el Centro de Aprobaciones, el sistema deberá aprobar en lote todas las solicitudes pendientes, acreditar la suma total de puntos acumulados e incrementar `totalPointsEarned` con recálculo de nivel.
 
 ### [REQ-TASK-009] Edición Rápida de Tarea para el Día
 - **CUANDO** un padre edite los puntos o título de una tarea asignada en la Ficha Diaria, el sistema deberá actualizar únicamente la instancia de hoy sin modificar la plantilla maestra en la biblioteca.
 
-### [REQ-TASK-010] Eliminación de Tarea de la Jornada
-- **CUANDO** un padre confirme la eliminación de una tarea desde la Ficha Diaria, el sistema deberá removerla de la lista de hoy de ese niño sin afectar otros días ni a otros hermanos.
+### [REQ-TASK-010] Eliminación de Tarea de la Jornada y Normalización Secuencial
+- **CUANDO** un padre confirme la eliminación de una tarea desde la Ficha Diaria, el sistema deberá removerla de la lista de hoy de ese niño sin afectar otros días ni a otros hermanos, y renormalizar inmediatamente los valores `orderIndex` restantes de forma correlativa (`1, 2, 3, ...`) para prevenir colisiones en el orden de ejecución.
 
 ### [REQ-TASK-011] Autonomía y Marcado Flexible No Lineal
 - **Universal:** El sistema no deberá imponer dependencias ni bloqueos lineales entre tareas; cada tarea asignada en el día es una unidad autónoma que puede ser realizada, solicitada o validada en cualquier orden cronológico según la conveniencia práctica del niño.
+
+### [REQ-TASK-012] Preservación de Enlace a Tarea Maestra
+- **Universal:** Toda tarea agregada a la lista diaria de un niño proveniente de la biblioteca maestra o de una rutina deberá preservar su identificador `masterTaskId`, garantizando la trazabilidad bidireccional y la coherencia en las operaciones de desasignación o pausa temporal.

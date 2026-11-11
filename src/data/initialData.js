@@ -25,6 +25,7 @@ export const INITIAL_DATA = {
       avatar: '🦁',
       level: 'Nivel 3 • Explorador',
       currentPoints: 150,
+      totalPointsEarned: 250,
       colorTheme: '#F59E0B',
       bgColor: '#FEF3C7',
       borderColor: '#FDE68A'
@@ -35,6 +36,7 @@ export const INITIAL_DATA = {
       avatar: '🦄',
       level: 'Nivel 2 • Aprendiz',
       currentPoints: 90,
+      totalPointsEarned: 100,
       colorTheme: '#EC4899',
       bgColor: '#FCE7F3',
       borderColor: '#FBCFE8'
@@ -48,7 +50,8 @@ export const INITIAL_DATA = {
       defaultApprovalMode: 'kid_request', // 'kid_request' | 'parent_only'
       iconSvg: '🛏️',
       category: 'Hogar',
-      description: 'Estirar bien las sábanas, alinear el edredón y colocar los cojines ordenados.'
+      description: 'Estirar bien las sábanas, alinear el edredón y colocar los cojines ordenados.',
+      assignedChildren: [{ childId: 'child-mateo', scheduleType: 'daily', scheduleText: 'Diaria continua', scheduleDetails: '' }]
     },
     {
       id: 'mt-2',
@@ -57,7 +60,11 @@ export const INITIAL_DATA = {
       defaultApprovalMode: 'parent_only',
       iconSvg: '🪥',
       category: 'Higiene',
-      description: 'Cepillarse durante 2 minutos completos y enjuagar con agua.'
+      description: 'Cepillarse durante 2 minutos completos y enjuagar con agua.',
+      assignedChildren: [
+        { childId: 'child-mateo', scheduleType: 'daily', scheduleText: 'Diaria continua', scheduleDetails: '' },
+        { childId: 'child-sofia', scheduleType: 'daily', scheduleText: 'Diaria continua', scheduleDetails: '' }
+      ]
     },
     {
       id: 'mt-3',
@@ -66,7 +73,8 @@ export const INITIAL_DATA = {
       defaultApprovalMode: 'kid_request',
       iconSvg: '📚',
       category: 'Estudios',
-      description: 'Completar las tareas de la libreta y dejar la mochila organizada para mañana.'
+      description: 'Completar las tareas de la libreta y dejar la mochila organizada para mañana.',
+      assignedChildren: [{ childId: 'child-mateo', scheduleType: 'weekdays', scheduleText: 'Días de Escuela (L-V)', scheduleDetails: 'Lunes a Viernes' }]
     },
     {
       id: 'mt-4',
@@ -75,7 +83,8 @@ export const INITIAL_DATA = {
       defaultApprovalMode: 'kid_request',
       iconSvg: '🧸',
       category: 'Hogar',
-      description: 'Guardar todos los muñecos y bloques en sus cajas respectivas del armario.'
+      description: 'Guardar todos los muñecos y bloques en sus cajas respectivas del armario.',
+      assignedChildren: [{ childId: 'child-mateo', scheduleType: 'daily', scheduleText: 'Diaria continua', scheduleDetails: '' }]
     },
     {
       id: 'mt-5',
@@ -84,7 +93,8 @@ export const INITIAL_DATA = {
       defaultApprovalMode: 'kid_request',
       iconSvg: '🍽️',
       category: 'Hogar',
-      description: 'Colocar manteles individuales, platos, cubiertos y vasos para la cena.'
+      description: 'Colocar manteles individuales, platos, cubiertos y vasos para la cena.',
+      assignedChildren: []
     },
     {
       id: 'mt-6',
@@ -93,7 +103,8 @@ export const INITIAL_DATA = {
       defaultApprovalMode: 'parent_only',
       iconSvg: '🥦',
       category: 'Salud',
-      description: 'Terminar la porción saludable servida en el plato sin quejas.'
+      description: 'Terminar la porción saludable servida en el plato sin quejas.',
+      assignedChildren: []
     },
     {
       id: 'mt-7',
@@ -103,7 +114,7 @@ export const INITIAL_DATA = {
       iconSvg: '🐕',
       category: 'Responsabilidad',
       description: 'Paseo de 15 minutos llevando la correa con cuidado y bolsa de limpieza.',
-      assignedChildren: [{ childId: 'child-sofia', scheduleType: 'daily', scheduleText: 'Diaria continua' }]
+      assignedChildren: [{ childId: 'child-sofia', scheduleType: 'daily', scheduleText: 'Diaria continua', scheduleDetails: '' }]
     },
     {
       id: 'mt-8',
@@ -147,6 +158,8 @@ export const INITIAL_DATA = {
     {
       id: 'asg-1',
       childId: 'child-mateo',
+      masterTaskId: 'mt-1',
+      date: '2026-08-25',
       title: 'Hacer la cama',
       points: 20,
       approvalMode: 'kid_request',
@@ -160,6 +173,8 @@ export const INITIAL_DATA = {
     {
       id: 'asg-2',
       childId: 'child-mateo',
+      masterTaskId: 'mt-2',
+      date: '2026-08-25',
       title: 'Lavarse los dientes',
       points: 10,
       approvalMode: 'parent_only',
@@ -172,6 +187,8 @@ export const INITIAL_DATA = {
     {
       id: 'asg-3',
       childId: 'child-mateo',
+      masterTaskId: 'mt-3',
+      date: '2026-08-25',
       title: 'Deberes de Matemáticas',
       points: 30,
       approvalMode: 'kid_request',
@@ -183,6 +200,8 @@ export const INITIAL_DATA = {
     {
       id: 'asg-4',
       childId: 'child-mateo',
+      masterTaskId: 'mt-4',
+      date: '2026-08-25',
       title: 'Ordenar juguetes',
       points: 20,
       approvalMode: 'kid_request',
@@ -194,6 +213,8 @@ export const INITIAL_DATA = {
     {
       id: 'asg-5',
       childId: 'child-sofia',
+      masterTaskId: 'mt-2',
+      date: '2026-08-25',
       title: 'Lavarse los dientes',
       points: 10,
       approvalMode: 'parent_only',
@@ -207,6 +228,8 @@ export const INITIAL_DATA = {
     {
       id: 'asg-6',
       childId: 'child-sofia',
+      masterTaskId: 'mt-4',
+      date: '2026-08-25',
       title: 'Guardar peluches',
       points: 15,
       approvalMode: 'kid_request',
@@ -218,6 +241,8 @@ export const INITIAL_DATA = {
     {
       id: 'asg-7',
       childId: 'child-sofia',
+      masterTaskId: 'mt-3',
+      date: '2026-08-25',
       title: 'Práctica de lectura',
       points: 20,
       approvalMode: 'kid_request',
@@ -295,6 +320,7 @@ export const INITIAL_DATA = {
           { id: 'hist-2', title: 'Lavarse los dientes', points: 10, status: 'approved', completedAt: '08:35 AM', approvedBy: 'Papá' },
           { id: 'hist-3', title: 'Deberes de Ciencias', points: 30, status: 'approved', completedAt: '05:00 PM', approvedBy: 'Mamá' }
         ],
+        penaltiesList: [],
         redemptions: [],
         bonuses: []
       },
@@ -307,6 +333,7 @@ export const INITIAL_DATA = {
           { id: 'hist-5', title: 'Guardar peluches', points: 15, status: 'approved', completedAt: '06:00 PM', approvedBy: 'Mamá' },
           { id: 'hist-6', title: 'Práctica de dibujo', points: 20, status: 'approved', completedAt: '07:00 PM', approvedBy: 'Papá' }
         ],
+        penaltiesList: [],
         redemptions: [],
         bonuses: []
       }
@@ -321,6 +348,7 @@ export const INITIAL_DATA = {
           { id: 'hist-8', title: 'Lavarse los dientes', points: 10, status: 'approved', completedAt: '08:40 AM', approvedBy: 'Papá' },
           { id: 'hist-9', title: 'Ordenar habitación', points: 20, status: 'missed', completedAt: null }
         ],
+        penaltiesList: [],
         redemptions: [
           { id: 'red-hist-1', rewardTitle: '30 mins de Consola', pointsCost: 100, redeemedAt: '07:30 PM', isRefunded: false }
         ],
@@ -335,6 +363,7 @@ export const INITIAL_DATA = {
           { id: 'hist-11', title: 'Poner la mesa', points: 15, status: 'approved', completedAt: '08:00 PM', approvedBy: 'Mamá' },
           { id: 'hist-12', title: 'Lectura de cuento', points: 10, status: 'approved', completedAt: '08:30 PM', approvedBy: 'Papá' }
         ],
+        penaltiesList: [],
         redemptions: [],
         bonuses: []
       }
@@ -345,8 +374,10 @@ export const INITIAL_DATA = {
         netPoints: 10,
         penalties: 10,
         tasks: [
-          { id: 'hist-13', title: 'Hacer la cama', points: 20, status: 'approved', completedAt: '09:00 AM', approvedBy: 'Papá' },
-          { id: 'hist-14', title: 'No pelear con su hermana', points: -10, status: 'penalty', reason: 'Discusión por control remoto' }
+          { id: 'hist-13', title: 'Hacer la cama', points: 20, status: 'approved', completedAt: '09:00 AM', approvedBy: 'Papá' }
+        ],
+        penaltiesList: [
+          { id: 'pen-hist-1', points: -10, reason: 'Discusión por control remoto', isReversed: false, actor: 'Papá' }
         ],
         redemptions: [],
         bonuses: []
@@ -359,6 +390,7 @@ export const INITIAL_DATA = {
           { id: 'hist-15', title: 'Lavarse los dientes', points: 10, status: 'approved', completedAt: '09:00 AM', approvedBy: 'Mamá' },
           { id: 'hist-16', title: 'Recoger pinturas', points: 20, status: 'approved', completedAt: '06:30 PM', approvedBy: 'Mamá' }
         ],
+        penaltiesList: [],
         redemptions: [],
         bonuses: []
       }

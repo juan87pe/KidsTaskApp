@@ -34,4 +34,7 @@
 - [x] `TASK-LIB-11`: Implementar `UnassignOrPauseModal.jsx` con opciones dinámicas según `scheduleType` (hoy, N días de pausa, permanentes).
 - [x] `TASK-LIB-12`: Extender `unassignOrPauseChildTask` en `AppContext.jsx` y conectarlo a `MasterLibrary.jsx` con visualización de estado en pausa.
 - [x] `TASK-LIB-13`: Actualizar y expandir la suite de pruebas BDD en `src/test/features/03-master-library-and-routines.test.jsx`.
+- [x] `TASK-LIB-14`: Integrar filtro de vigencia temporal `shouldScheduleApplyOnDate` en asignaciones de biblioteca y preservar metadatos (`scheduleDetails`, `masterTaskId`).
+- [x] `TASK-LIB-15`: Habilitar detección preventiva de duplicados para asignación de tareas individuales (`AssignMasterTaskModal`) conectándolo con `DuplicateDetectionModal`.
+- [x] `TASK-LIB-16`: Implementar expiración dinámica de pausas (`pausedUntil > today`) y omisión por fecha (`skippedDate`) garantizando reanudación automática.
 
