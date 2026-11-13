@@ -165,7 +165,7 @@
         "childId": { "type": "string" },
         "type": {
           "type": "string",
-          "enum": ["task_reward", "bonus", "penalty", "reward_redemption", "refund_reversal", "retroactive_adjustment"]
+          "enum": ["task_reward", "bonus", "penalty", "reward_redemption", "refund_reversal", "retroactive_adjustment", "points_expiration"]
         },
         "points": { "type": "integer" },
         "reason": { "type": "string" },
@@ -173,6 +173,7 @@
         "actor": { "type": "string" },
         "isReversed": { "type": "boolean" },
         "reversedBy": { "type": ["string", "null"] },
+        "sourceRefId": { "type": ["string", "null"] },
         "timestamp": { "type": "string" }
       }
     },

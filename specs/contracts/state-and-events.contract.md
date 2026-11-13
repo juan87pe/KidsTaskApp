@@ -116,7 +116,7 @@ A las 23:59:59 o al ejecutarse la transición de día:
 1. **Reversión de Tarea Aprobada Pasada (`AUDIT_REVOKE_TASK`):**
    - Transición: `approved -> uncompleted` con `isRetroactivelyModified: true`.
    - Emisión de transacción `retroactive_adjustment` por `-task.points`.
-   - Regla de compensación en saldo: Si el hogar opera bajo `daily_reset` o `weekly_reset` y la fecha auditada es anterior a la jornada activa, solo se deducirán del saldo de hoy los puntos que fueron efectivamente consumidos en canjes o auto-liquidaciones durante esa fecha cerrada.
+   - Regla de compensación en saldo: Si el hogar opera bajo `daily_reset` o `weekly_reset` y la fecha auditada pertenece a un ciclo anterior cerrado, se reduce únicamente el acumulado histórico `totalPointsEarned` (nivel del niño) y se emite la transacción `retroactive_adjustment` en la fecha contable pasada; el saldo disponible de la jornada activa (`currentPoints`) no se altera, evitando saldos negativos o deducciones sobre la jornada actual por movimientos de ciclos contables ya cerrados.
 2. **Reembolso de Canje Pasado (`REFUND_REDEMPTION`):**
    - Transición idempotente: Solo ejecutable si `redemption.isRefunded === false`.
    - Marca la transacción de canje original como `isReversed: true` y `reversedBy: tutor.name`.
